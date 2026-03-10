@@ -10,13 +10,12 @@ interface GroupPageProps {
 }
 
 function getThisWeekMonday(): Date {
-  const now = new Date();
-  const dayOfWeek = now.getDay();
+  // KST 기준 이번 주 월요일
+  const now = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const dayOfWeek = now.getUTCDay();
   const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-  const monday = new Date(now);
-  monday.setHours(0, 0, 0, 0);
-  monday.setDate(now.getDate() + diffToMonday);
-  return monday;
+  const mondayDate = now.getUTCDate() + diffToMonday;
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), mondayDate));
 }
 
 export default async function GroupPage({ params }: GroupPageProps) {
@@ -30,7 +29,7 @@ export default async function GroupPage({ params }: GroupPageProps) {
 
   const thisWeekMonday = getThisWeekMonday();
   const [year, month, day] = group.lunchDate.split("-").map(Number);
-  const lunchDateObj = new Date(year, month - 1, day);
+  const lunchDateObj = new Date(Date.UTC(year, month - 1, day));
   const isPast = lunchDateObj < thisWeekMonday;
 
   // 과거 기록: 리빌/콘페티 없이 결과만 표시

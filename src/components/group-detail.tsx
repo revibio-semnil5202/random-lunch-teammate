@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, Users, ArrowLeft } from "lucide-react";
+import { Calendar, Users, ArrowLeft, AlarmClock } from "lucide-react";
 import Link from "next/link";
 import { ParticipantForm } from "@/components/participant-form";
 import { ParticipantList } from "@/components/participant-list";
@@ -107,7 +107,7 @@ export function GroupDetail({ group }: GroupDetailProps) {
         <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/5 via-background to-primary/10 p-6">
           <div className="absolute left-0 top-0 h-full w-1 bg-primary rounded-l-2xl" />
           <h1 className="text-2xl font-bold mb-3">{group.title}</h1>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <div className="flex items-center gap-1.5">
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10">
                 <Users className="h-3.5 w-3.5 text-primary" />
@@ -123,6 +123,15 @@ export function GroupDetail({ group }: GroupDetailProps) {
               </div>
               <span className="text-sm font-medium text-muted-foreground">
                 {group.lunchDateDisplay}
+              </span>
+            </div>
+            <div className="h-4 w-px bg-border" />
+            <div className="flex items-center gap-1.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10">
+                <AlarmClock className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">
+                {group.matchDeadlineDisplay} 마감
               </span>
             </div>
           </div>

@@ -123,6 +123,16 @@ const KOREAN_DAY_MAP: Record<DayOfWeek, number> = {
   "월": 1, "화": 2, "수": 3, "목": 4, "금": 5,
 };
 
+/** KST 기준 현재 시각을 Date로 반환 (UTC 메서드로 KST 값을 읽을 수 있음) */
+function nowKST(): Date {
+  return new Date(Date.now() + 9 * 60 * 60 * 1000);
+}
+
+/** KST 기준 날짜+시각으로 UTC Date 생성 (DB 저장용) */
+function kstToUTC(year: number, month: number, day: number, hours: number, minutes: number): Date {
+  return new Date(Date.UTC(year, month - 1, day, hours - 9, minutes, 0, 0));
+}
+
 /**
  * 이번 주 lunch_event를 생성하거나, 이미 있으면 날짜/시간을 갱신
  *
@@ -134,37 +144,34 @@ async function ensureThisWeekEvent(
   schedule: DayOfWeek[],
   matchDeadlineTime: string
 ) {
-  const now = new Date();
-  const dayOfWeek = now.getDay(); // 0=Sun
+  const now = nowKST();
+  const dayOfWeek = now.getUTCDay(); // 0=Sun (KST 기준)
   const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
 
-  const monday = new Date(now);
-  monday.setHours(0, 0, 0, 0);
-  monday.setDate(now.getDate() + diffToMonday);
+  const mondayDate = now.getUTCDate() + diffToMonday;
+  const year = now.getUTCFullYear();
+  const month = now.getUTCMonth() + 1;
 
-  const nextMonday = new Date(monday);
-  nextMonday.setDate(monday.getDate() + 7);
-
-  const mondayStr = toDateStr(monday);
-  const nextMondayStr = toDateStr(nextMonday);
+  // 이번 주 월요일/다음 주 월요일 날짜 문자열
+  const mondayD = new Date(Date.UTC(year, month - 1, mondayDate));
+  const nextMondayD = new Date(Date.UTC(year, month - 1, mondayDate + 7));
+  const mondayStr = toDateStr(mondayD);
+  const nextMondayStr = toDateStr(nextMondayD);
 
   // 로테이션에서 이번 주 요일 결정
   const rotationIndex = 0 % schedule.length;
   const targetDay = schedule[rotationIndex];
   const targetDayNum = KOREAN_DAY_MAP[targetDay];
 
-  // 이번 주 해당 요일의 날짜 계산
-  const lunchDate = new Date(monday);
-  lunchDate.setDate(monday.getDate() + (targetDayNum - 1));
+  // 이번 주 해당 요일의 날짜 계산 (KST 기준)
+  const lunchDay = mondayDate + (targetDayNum - 1);
+  const lunchDateStr = toDateStr(new Date(Date.UTC(year, month - 1, lunchDay)));
 
   const [hours, minutes] = matchDeadlineTime.split(":").map(Number);
-  const deadline = new Date(lunchDate);
-  deadline.setHours(hours, minutes, 0, 0);
+  const deadline = kstToUTC(year, month, lunchDay, hours, minutes);
 
-  // 이미 지난 날짜면 생성/갱신하지 않음
-  if (deadline <= now) return;
-
-  const lunchDateStr = toDateStr(lunchDate);
+  // 이미 지난 시각이면 생성/갱신하지 않음
+  if (deadline <= new Date()) return;
 
   // 이번 주 이벤트가 이미 있는지 확인
   const existing = await db
@@ -203,8 +210,8 @@ async function ensureThisWeekEvent(
 }
 
 function toDateStr(d: Date): string {
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
+  const yyyy = d.getUTCFullYear();
+  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(d.getUTCDate()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd}`;
 }

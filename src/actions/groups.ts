@@ -23,24 +23,33 @@ function formatLunchDateDisplay(dateStr: string): string {
   return `${mm}.${dd}.${dayName}`;
 }
 
-function getWeekBounds(): { monday: Date; nextMonday: Date } {
-  const now = new Date();
-  const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon, ...
-  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-  const monday = new Date(now);
-  monday.setHours(0, 0, 0, 0);
-  monday.setDate(now.getDate() + diffToMonday);
+function formatDeadlineDisplay(deadline: Date): string {
+  const kst = new Date(deadline.getTime() + 9 * 60 * 60 * 1000);
+  const month = String(kst.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(kst.getUTCDate()).padStart(2, "0");
+  const dayName = KOREAN_DAYS[kst.getUTCDay()];
+  const hours = String(kst.getUTCHours()).padStart(2, "0");
+  const minutes = String(kst.getUTCMinutes()).padStart(2, "0");
+  return `${month}.${day}.${dayName} ${hours}:${minutes}`;
+}
 
-  const nextMonday = new Date(monday);
-  nextMonday.setDate(monday.getDate() + 7);
+function getWeekBounds(): { monday: Date; nextMonday: Date } {
+  // KST 기준으로 이번 주 월요일~다음 주 월요일 계산
+  const now = new Date(Date.now() + 9 * 60 * 60 * 1000); // KST
+  const dayOfWeek = now.getUTCDay(); // 0=Sun, 1=Mon, ...
+  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+
+  const mondayDate = now.getUTCDate() + diffToMonday;
+  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), mondayDate));
+  const nextMonday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), mondayDate + 7));
 
   return { monday, nextMonday };
 }
 
 function toDateString(d: Date): string {
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
+  const yyyy = d.getUTCFullYear();
+  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(d.getUTCDate()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd}`;
 }
 
@@ -120,6 +129,7 @@ async function buildGroup(
     title: config.title,
     lunchDate: event.lunchDate,
     lunchDateDisplay: formatLunchDateDisplay(event.lunchDate),
+    matchDeadlineDisplay: formatDeadlineDisplay(event.matchDeadline),
     participantCount: participants.length,
     participants,
     status: isMatched ? "matched" : "recruiting",

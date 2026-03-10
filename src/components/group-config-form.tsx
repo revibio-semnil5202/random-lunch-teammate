@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { TimePicker } from "@/components/time-picker";
 import { DAYS_OF_WEEK } from "@/types";
 import type { GroupConfig, DayOfWeek } from "@/types";
 
@@ -173,29 +174,15 @@ export function GroupConfigForm({
       </div>
 
       {/* 매칭 마감 시각 */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <div>
           <Label className="text-sm font-semibold">매칭 마감 시각</Label>
           <p className="text-xs text-muted-foreground mt-0.5">
-            이 시간에 매칭 결과가 자동으로 발표됩니다. (5분 단위)
+            이 시간에 매칭 결과가 자동으로 발표됩니다.
           </p>
         </div>
-        <select
-          value={matchDeadlineTime}
-          onChange={(e) => setMatchDeadlineTime(e.target.value)}
-          className="flex h-10 w-32 rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
-        >
-          {Array.from({ length: (18 - 9) * 12 + 1 }, (_, i) => {
-            const totalMinutes = 9 * 60 + i * 5;
-            const h = String(Math.floor(totalMinutes / 60)).padStart(2, "0");
-            const m = String(totalMinutes % 60).padStart(2, "0");
-            return (
-              <option key={`${h}:${m}`} value={`${h}:${m}`}>
-                {h}:{m}
-              </option>
-            );
-          })}
-        </select>
+
+        <TimePicker value={matchDeadlineTime} onChange={setMatchDeadlineTime} />
       </div>
 
       {/* 슬랙 채널 바로가기 */}

@@ -29,6 +29,7 @@ export interface Group {
   title: string;
   lunchDate: string;
   lunchDateDisplay: string;
+  matchDeadlineDisplay: string;
   participantCount: number;
   participants: Participant[];
   status: "recruiting" | "matched" | "cancelled";

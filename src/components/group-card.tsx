@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calendar, Users, ChevronRight, Trophy, Clock, Ban } from "lucide-react";
+import { Calendar, Users, ChevronRight, Trophy, Clock, Ban, AlarmClock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Group } from "@/types";
 
@@ -65,7 +65,7 @@ export function GroupCard({ group }: GroupCardProps) {
       </div>
 
       {/* 하단: 메타 정보 */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <div className="flex items-center gap-1.5">
           <div
             className={cn(
@@ -106,6 +106,27 @@ export function GroupCard({ group }: GroupCardProps) {
           </div>
           <span className="text-sm font-medium text-muted-foreground">
             {group.lunchDateDisplay}
+          </span>
+        </div>
+
+        <div className="h-4 w-px bg-border" />
+
+        <div className="flex items-center gap-1.5">
+          <div
+            className={cn(
+              "flex h-7 w-7 items-center justify-center rounded-full",
+              cancelled ? "bg-rose-100" : matched ? "bg-emerald-100" : "bg-primary/10"
+            )}
+          >
+            <AlarmClock
+              className={cn(
+                "h-3.5 w-3.5",
+                cancelled ? "text-rose-500" : matched ? "text-emerald-600" : "text-primary"
+              )}
+            />
+          </div>
+          <span className="text-sm font-medium text-muted-foreground">
+            {group.matchDeadlineDisplay} 마감
           </span>
         </div>
       </div>
