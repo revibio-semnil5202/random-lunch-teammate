@@ -12,19 +12,11 @@ export const mockGroupConfigs: GroupConfig[] = [
   },
   {
     id: "gc2",
-    title: "스시히로바&맛있는녀석들",
+    title: "링커리어",
     schedule: ["수", "목"],
     maxParticipants: 8,
     matchDeadlineTime: "11:00",
-    slackChannelUrl: "https://slack.com/app_redirect?channel=C0000000002",
+    slackChannelUrl: "https://slack.com/app_redirect?channel=C0000000003",
     createdAt: "2026-02-01T09:00:00",
-  },
-  {
-    id: "gc3",
-    title: "봉추찜닭&할매국수",
-    schedule: ["화", "목", "금"],
-    maxParticipants: 16,
-    matchDeadlineTime: "11:30",
-    createdAt: "2026-02-10T09:00:00",
   },
 ];
