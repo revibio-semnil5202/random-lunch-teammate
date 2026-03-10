@@ -86,7 +86,7 @@ export function RestaurantList({ restaurants }: RestaurantListProps) {
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">식당 추가</span>
           </a>
-          <p className="text-xs text-muted-foreground mt-1 text-right">
+          <p className="text-xs text-muted-foreground mt-2 text-right">
             시트 입력 후 저장하거나 <br className="sm:hidden" />
             탭을 닫아주세요.
           </p>
