@@ -187,7 +187,7 @@ export async function getGroups(): Promise<{
         )
       )
       .orderBy(desc(lunchEvents.lunchDate))
-      .limit(10),
+      .limit(20),
   ]);
 
   const [active, past] = await Promise.all([

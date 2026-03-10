@@ -9,7 +9,7 @@ import {
   members,
   matchResults,
 } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, notInArray, sql } from "drizzle-orm";
 import { createMatch } from "@/lib/match";
 import { sendMatchResult } from "@/lib/slack";
 
@@ -116,7 +116,7 @@ export async function createRandomMatch(eventId: string): Promise<{
   return { success: true, groups: savedGroups };
 }
 
-const PAST_EVENTS_LIMIT = 10;
+const PAST_EVENTS_LIMIT = 20;
 
 async function cleanupOldEvents() {
   try {
@@ -150,6 +150,17 @@ async function cleanupOldEvents() {
       await db.delete(eventParticipants).where(eq(eventParticipants.eventId, id));
       await db.delete(lunchEvents).where(eq(lunchEvents.id, id));
     }
+
+    // 고아 members 정리: 어떤 eventParticipants에도 참조되지 않는 member 삭제
+    const referencedMemberIds = db
+      .select({ memberId: eventParticipants.memberId })
+      .from(eventParticipants);
+
+    await db
+      .delete(members)
+      .where(
+        notInArray(members.id, sql`(${referencedMemberIds})`)
+      );
   } catch (e) {
     console.error("과거 기록 정리 실패:", e);
   }
