@@ -192,6 +192,7 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
             <p className="text-sm text-destructive">{actionError}</p>
           )}
           <GroupConfigForm
+            key={editTarget?.id}
             config={editTarget}
             onSubmit={handleEdit}
             onCancel={() => setEditTarget(null)}

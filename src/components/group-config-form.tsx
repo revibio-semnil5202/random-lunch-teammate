@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Plus, X, Repeat, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,23 +23,13 @@ export function GroupConfigForm({
   onCancel,
   isSubmitting = false,
 }: GroupConfigFormProps) {
-  const [title, setTitle] = useState("");
-  const [schedule, setSchedule] = useState<DayOfWeek[]>(["수"]);
-  const [maxParticipants, setMaxParticipants] = useState(4);
-  const [matchDeadlineTime, setMatchDeadlineTime] = useState("11:00");
-  const [slackChannelUrl, setSlackChannelUrl] = useState("");
-  const [slackWebhookUrl, setSlackWebhookUrl] = useState("");
-
-  useEffect(() => {
-    if (config) {
-      setTitle(config.title);
-      setSchedule(config.schedule);
-      setMaxParticipants(config.maxParticipants);
-      setMatchDeadlineTime(config.matchDeadlineTime);
-      setSlackChannelUrl(config.slackChannelUrl ?? "");
-      setSlackWebhookUrl(config.slackWebhookUrl ?? "");
-    }
-  }, [config]);
+  const [title, setTitle] = useState(config?.title ?? "");
+  const [schedule, setSchedule] = useState<DayOfWeek[]>(config?.schedule ?? ["수"]);
+  const [maxParticipants, setMaxParticipants] = useState(config?.maxParticipants ?? 4);
+  const [maxParticipantsInput, setMaxParticipantsInput] = useState(String(config?.maxParticipants ?? 4));
+  const [matchDeadlineTime, setMatchDeadlineTime] = useState(config?.matchDeadlineTime ?? "11:00");
+  const [slackChannelUrl, setSlackChannelUrl] = useState(config?.slackChannelUrl ?? "");
+  const [slackWebhookUrl, setSlackWebhookUrl] = useState(config?.slackWebhookUrl ?? "");
 
   const handleDayChange = (weekIndex: number, day: DayOfWeek) => {
     setSchedule((prev) => prev.map((d, i) => (i === weekIndex ? day : d)));
@@ -162,10 +152,13 @@ export function GroupConfigForm({
             type="number"
             min={3}
             max={12}
-            value={maxParticipants}
-            onChange={(e) => {
-              const v = Number(e.target.value);
-              setMaxParticipants(Math.min(12, Math.max(3, v)));
+            value={maxParticipantsInput}
+            onChange={(e) => setMaxParticipantsInput(e.target.value)}
+            onBlur={() => {
+              const v = Number(maxParticipantsInput);
+              const clamped = Math.min(12, Math.max(3, isNaN(v) ? 4 : v));
+              setMaxParticipants(clamped);
+              setMaxParticipantsInput(String(clamped));
             }}
             className="w-24 h-10 text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
@@ -178,7 +171,7 @@ export function GroupConfigForm({
         <div>
           <Label className="text-sm font-semibold">매칭 마감 시각</Label>
           <p className="text-xs text-muted-foreground mt-0.5">
-            이 시간에 매칭 결과가 자동으로 발표됩니다.
+            진행 요일 당일, 이 시간에 매칭 결과가 자동으로 발표됩니다.
           </p>
         </div>
 
