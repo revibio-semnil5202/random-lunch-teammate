@@ -139,7 +139,7 @@ function kstToUTC(year: number, month: number, day: number, hours: number, minut
  * schedule 로테이션에서 이번 주에 해당하는 요일을 계산하고,
  * 아직 지나지 않은 요일이면 이벤트를 생성/갱신한다.
  */
-async function ensureThisWeekEvent(
+export async function ensureThisWeekEvent(
   groupConfigId: number,
   schedule: DayOfWeek[],
   matchDeadlineTime: string
@@ -183,24 +183,22 @@ async function ensureThisWeekEvent(
         gte(lunchEvents.lunchDate, mondayStr),
         lt(lunchEvents.lunchDate, nextMondayStr)
       )
-    )
-    .limit(1);
+    );
 
-  if (existing.length > 0) {
-    // 이미 매칭 완료된 이벤트는 수정하지 않음
-    if (existing[0].status === "matched") return;
-
-    // 모집 중이면 날짜/시간 갱신
+  // 이번 주 모집 중인 이벤트가 있으면 날짜/시간 갱신
+  const recruiting = existing.find((e) => e.status === "recruiting");
+  if (recruiting) {
     await db
       .update(lunchEvents)
       .set({
         lunchDate: lunchDateStr,
         matchDeadline: deadline,
       })
-      .where(eq(lunchEvents.id, existing[0].id));
+      .where(eq(lunchEvents.id, recruiting.id));
     return;
   }
 
+  // 매칭 완료/취소된 이벤트만 있으면 새 이벤트 생성
   await db.insert(lunchEvents).values({
     groupConfigId,
     lunchDate: lunchDateStr,
