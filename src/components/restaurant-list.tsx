@@ -108,15 +108,12 @@ export function RestaurantList({ restaurants }: RestaurantListProps) {
               className="h-10 pl-9 bg-background/80"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 sm:hidden">
-              <Filter className="h-3.5 w-3.5 text-primary" />
-            </div>
+          <div className="flex w-full items-center gap-2 sm:w-auto">
             <Select
               value={categoryFilter}
               onValueChange={(v) => setCategoryFilter(v ?? ALL)}
             >
-              <SelectTrigger className="h-10 min-w-[120px] bg-background/80">
+              <SelectTrigger className="!h-10 flex-1 sm:flex-none sm:min-w-[160px] bg-background/80">
                 <span>
                   <span className="text-muted-foreground">음식 종류: </span>
                   {categoryFilter === ALL ? "전체" : categoryFilter}
@@ -135,7 +132,7 @@ export function RestaurantList({ restaurants }: RestaurantListProps) {
               value={mealSupportFilter}
               onValueChange={(v) => setMealSupportFilter(v ?? ALL)}
             >
-              <SelectTrigger className="h-10 min-w-[120px] bg-background/80">
+              <SelectTrigger className="!h-10 flex-1 sm:flex-none sm:min-w-[160px] bg-background/80">
                 <span>
                   <span className="text-muted-foreground">식대: </span>
                   {mealSupportFilter === ALL ? "전체" : mealSupportFilter}
@@ -153,10 +150,10 @@ export function RestaurantList({ restaurants }: RestaurantListProps) {
             {hasActiveFilter && (
               <button
                 onClick={clearFilters}
-                className="flex h-10 items-center gap-1.5 rounded-lg border bg-background/80 px-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                className="flex h-10 shrink-0 items-center gap-1.5 rounded-lg border bg-background/80 px-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 <X className="h-3.5 w-3.5" />
-                초기화
+                <span className="hidden sm:inline">초기화</span>
               </button>
             )}
           </div>
