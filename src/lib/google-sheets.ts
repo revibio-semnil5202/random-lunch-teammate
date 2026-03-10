@@ -1,4 +1,5 @@
-const SPREADSHEET_ID = "1B7edXR30R0w3tEZu8bg1yFuBUvHrByV10UiqZ_r_LXs";
+export const SPREADSHEET_ID = "1B7edXR30R0w3tEZu8bg1yFuBUvHrByV10UiqZ_r_LXs";
+export const SPREADSHEET_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/edit`;
 
 export interface Restaurant {
   name: string;

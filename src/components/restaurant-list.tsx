@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
-import type { Restaurant } from "@/lib/google-sheets";
+import { type Restaurant, SPREADSHEET_URL } from "@/lib/google-sheets";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import {
   MapPin,
+  Plus,
   Search,
   UtensilsCrossed,
   CreditCard,
@@ -84,6 +85,15 @@ export function RestaurantList({ restaurants }: RestaurantListProps) {
               : `${restaurants.length}곳`}
           </Badge>
         </div>
+        <a
+          href={SPREADSHEET_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-md transition-all hover:shadow-lg hover:opacity-90 active:scale-95"
+        >
+          <Plus className="h-4 w-4" />
+          <span className="hidden sm:inline">식당 추가</span>
+        </a>
       </div>
 
       {/* Search & Filters */}
@@ -107,10 +117,13 @@ export function RestaurantList({ restaurants }: RestaurantListProps) {
               onValueChange={(v) => setCategoryFilter(v ?? ALL)}
             >
               <SelectTrigger className="h-10 min-w-[120px] bg-background/80">
-                <SelectValue placeholder="음식 종류" />
+                <span>
+                  <span className="text-muted-foreground">음식 종류: </span>
+                  {categoryFilter === ALL ? "전체" : categoryFilter}
+                </span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL}>전체 음식</SelectItem>
+                <SelectItem value={ALL}>전체</SelectItem>
                 {categories.map((cat) => (
                   <SelectItem key={cat} value={cat}>
                     {cat}
@@ -123,10 +136,13 @@ export function RestaurantList({ restaurants }: RestaurantListProps) {
               onValueChange={(v) => setMealSupportFilter(v ?? ALL)}
             >
               <SelectTrigger className="h-10 min-w-[120px] bg-background/80">
-                <SelectValue placeholder="식대 유무" />
+                <span>
+                  <span className="text-muted-foreground">식대: </span>
+                  {mealSupportFilter === ALL ? "전체" : mealSupportFilter}
+                </span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL}>전체 식대</SelectItem>
+                <SelectItem value={ALL}>전체</SelectItem>
                 {mealSupportOptions.map((opt) => (
                   <SelectItem key={opt} value={opt}>
                     {opt}
