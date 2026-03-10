@@ -73,10 +73,27 @@
 - [x] 과거 기록 최대 10개 표시 (limit 10)
 - [x] 매칭 완료 후 10개 초과 시 자동 삭제
 
-## Phase 3 - 남은 작업
+## 임시 변경 (되돌리기 필요)
 
-- [ ] Supabase 어드민 인증 (이메일/패스워드) → 인증 시에만 사이드바 + 페이지 노출
-- [ ] lunch_events 자동 생성 cron — schedule 기반 다음 주 이벤트 생성
+- [ ] match-cron.yml: 24시간 → KST 09:00~18:00으로 복원 (`*/5 0-9 * * 1-5`)
+
+## Phase 3 - 인증 + 안정화 ✅
+
+- [x] Supabase 이메일 로그인 (`@supabase/ssr`, 미들웨어 라우팅 보호)
+- [x] 역할 기반 접근 제어 (일반/관리자, `app_metadata.role`)
+- [x] 로그인 페이지 UI + 사이드바 조건부 메뉴 + 로그아웃
+- [x] 어드민 서버 액션 `requireAdmin()` 가드
+- [x] 쿠키 만료일 30일 설정
+- [x] lunch_events 자동 생성 (그룹 추가/수정 시 `ensureThisWeekEvent`)
+- [x] KST 타임존 고정 (Vercel UTC 서버 대응)
+- [x] 그룹 카드/상세 마감일 표시 (`matchDeadlineDisplay`)
+- [x] DB 연결 풀 개선 (max:1 + globalThis 싱글톤)
+- [x] 글로벌 에러 바운더리 (toast + /login 리다이렉트)
+- [x] 에러 핸들링 고도화 (Sonner toast 알림)
+- [x] 인증 설정 가이드 (`docs/auth-setup.md`)
+
+## Phase 4 - 남은 작업
+
+- [ ] GitHub Actions cron 추가 (월요일 10시 weekly, 마감 1시간 전 reminder)
 - [ ] 과거 기록 검색/필터
 - [ ] Zod 입력값 검증
-- [ ] 에러 핸들링 고도화 (toast 알림)
