@@ -3,43 +3,81 @@
 사내 서비스이므로 REST API Routes 대신 **Server Actions** 채택.
 현재 Phase 1은 목(mock) 데이터 사용. Phase 2에서 Supabase 연동 예정.
 
-## Actions
+## 어드민 Actions (인증 필요)
+
+### getGroupConfigs
+- **파일**: `src/actions/admin.ts` (예정)
+- **설명**: 어드민 그룹 설정 목록 조회
+- **반환**: `GroupConfig[]`
+- **현재**: `src/mocks/group-configs.ts`에서 직접 import
+
+### createGroupConfig
+- **파일**: `src/actions/admin.ts` (예정)
+- **설명**: 그룹 설정 추가
+- **파라미터**:
+  ```typescript
+  {
+    title: string;
+    schedule: DayOfWeek[];     // 요일 로테이션 (ex: ["수","목"])
+    maxParticipants: number;   // 최소 3
+    matchDeadlineTime: string; // "11:00"
+    slackChannelUrl?: string;
+  }
+  ```
+- **반환**: `GroupConfig`
+- **현재**: 클라이언트 state에서 mock 처리
+
+### updateGroupConfig
+- **파일**: `src/actions/admin.ts` (예정)
+- **설명**: 그룹 설정 수정
+- **파라미터**: `{ id: string } & Partial<Omit<GroupConfig, "id" | "createdAt">>`
+- **반환**: `GroupConfig`
+- **현재**: 클라이언트 state에서 mock 처리
+
+### deleteGroupConfig
+- **파일**: `src/actions/admin.ts` (예정)
+- **설명**: 그룹 설정 삭제
+- **파라미터**: `{ id: string }`
+- **반환**: `{ success: boolean }`
+- **현재**: 클라이언트 state에서 mock 처리
+
+## 일반 Actions
 
 ### getGroups
 - **파일**: `src/actions/groups.ts` (예정)
-- **설명**: 대시보드용 그룹 목록 조회 (진행중 + 과거 기록)
+- **설명**: 대시보드용 이벤트 목록 조회 (진행중 + 과거 기록)
 - **반환**: `{ active: Group[], past: Group[] }`
 - **현재**: `src/mocks/groups.ts`에서 `mockGroups`, `mockPastGroups` 직접 import
 
 ### getGroupDetail
 - **파일**: `src/actions/groups.ts` (예정)
-- **설명**: 그룹 상세 정보 + 참여자 목록 조회 (진행중 + 과거 모두 검색)
-- **파라미터**: `groupId: string`
+- **설명**: 이벤트 상세 정보 + 참여자 목록 조회
+- **파라미터**: `eventId: string`
 - **반환**: `Group | null`
 - **현재**: mockGroups + mockPastGroups에서 find
 
 ### registerParticipant
 - **파일**: `src/actions/participants.ts` (예정)
-- **설명**: 그룹에 참여자 등록
+- **설명**: 이벤트에 참여자 등록
 - **파라미터**:
   ```typescript
   {
-    groupId: string;
+    eventId: string;
     team: string;   // TEAMS 프리셋 또는 직접 입력 문자열
     name: string;   // 최대 10글자
   }
   ```
 - **반환**: `Participant`
-- **검증**: name 길이, 그룹 상태가 "recruiting"인지, 동일 team+name 중복 확인
+- **검증**: name 길이, 이벤트 상태가 "recruiting"인지, 동일 team+name 중복 확인, maxParticipants 초과 확인
 - **현재**: 클라이언트 state에서 mock 처리 (800ms delay)
 
 ### deleteParticipant
 - **파일**: `src/actions/participants.ts` (예정)
-- **설명**: 그룹에서 참여자 삭제
+- **설명**: 이벤트에서 참여자 삭제
 - **파라미터**:
   ```typescript
   {
-    groupId: string;
+    eventId: string;
     participantId: string;
   }
   ```
@@ -54,11 +92,7 @@
   - 3명 미만: 매칭 불가
   - 3~5명: 한 그룹 (셔플 안 함)
   - 6명 이상: Fisher-Yates 셔플 → 균등 분배
-    - `numGroups = ceil(total / maxSize)`
-    - `baseSize = floor(total / numGroups)`, `extra = total % numGroups`
-    - extra개 그룹은 (baseSize + 1)명, 나머지는 baseSize명
 - **반환**: `{ success: boolean; groups?: { groupId, members }[]; message?: string }`
-- **현재**: DB 저장 로직 포함, Phase 2에서 lunch event 단위로 확장 예정
 
 ## API Routes
 
@@ -66,9 +100,17 @@
 - **파일**: `src/app/api/cron/match/route.ts`
 - **설명**: GitHub Actions cron에서 호출하는 자동 매칭 엔드포인트
 - **인증**: `Authorization: Bearer {CRON_SECRET}` 헤더 필수
-- **스케줄**: 평일 11:30 KST (GitHub Actions cron)
-- **현재**: `createRandomMatch()` 직접 호출
-- **Phase 2**: DB에서 matchDeadline이 지난 recruiting 그룹을 조회하여 개별 매칭 실행
+- **Phase 2 로직**:
+  1. 오늘 매칭 마감인 lunch_events 조회 (status = 'recruiting', match_deadline ≤ now)
+  2. 각 이벤트에 대해 createRandomMatch 실행
+  3. status → 'matched' 업데이트
+
+### POST /api/cron/create-events (Phase 2 신규)
+- **설명**: group_configs의 schedule 기반으로 다음 주 lunch_events 자동 생성
+- **로직**:
+  1. 각 group_config의 schedule에서 다음 주 해당 요일 계산
+  2. 중복 이벤트 없으면 lunch_events에 INSERT
+  3. 시작일 기준 `(주차 % schedule.length)` 로 현재 로테이션 인덱스 계산
 
 ## GitHub Actions
 
@@ -83,11 +125,10 @@
 - **동작**: `gautamkrishnar/keepalive-workflow`로 더미 커밋 생성
 - **목적**: GitHub Actions 60일 비활성화 자동 중지 방지
 
-## Phase 2 연동 계획
+## 인증 (Phase 2)
 
-1. Drizzle ORM 쿼리로 Server Actions 구현
-2. Zod로 입력값 검증
-3. revalidatePath로 캐시 무효화
-4. 에러 핸들링 표준화
-5. Cron API Route에서 DB 기반 자동 매칭 (matchDeadline 조회 → 매칭 실행 → status 업데이트)
-6. groups 테이블에 `max_group_size` 컬럼 추가하여 그룹별 최대 인원 설정
+### Supabase Auth
+- **방식**: 이메일/패스워드 로그인 (어드민 전용)
+- **보호 범위**: `/admin/*` 라우트 + 사이드바 "그룹 관리" 메뉴
+- **미들웨어**: `src/middleware.ts`에서 세션 검증 → 미인증 시 리다이렉트
+- **일반 사용자**: 인증 없이 대시보드/그룹 상세 접근 가능

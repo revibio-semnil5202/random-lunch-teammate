@@ -16,6 +16,7 @@
 |------|--------|------|
 | `/` | 대시보드 | 진행중 그룹 카드 + 과거 기록 테이블 |
 | `/groups/[id]` | 그룹 상세 | 모집중: 참여자 등록/삭제, 매칭완료: 리빌 연출 + 결과 표시, 과거 기록: 결과 바로 표시 |
+| `/admin/groups` | 그룹 관리 (어드민) | 그룹 설정 CRUD, 요일 로테이션, 최대 인원. Phase 2에서 Supabase 인증 필요 |
 | `/restaurants` | 식당 목록 | placeholder |
 
 ## 레이아웃
@@ -25,6 +26,7 @@
 - **구분선**: SidebarSeparator로 로고/메뉴 영역 분리
 - **메뉴**: h-10 pill, 아이콘 18px, rounded-lg, text-base (16px)
   - 대시보드 (LayoutDashboard)
+  - 그룹 관리 (FolderCog) — Phase 2에서 어드민 인증 시에만 노출
   - 회사 근처 식당 (UtensilsCrossed)
 - **활성 상태**: sidebar-accent 배경 (sky 톤 `oklch(0.93 0.02 260)`)
 - `/groups/*` 경로에서 "대시보드" 활성
@@ -119,6 +121,33 @@
   → 12시간 쿠키로 재방문 시 바로 결과 노출
   → 과거 기록은 리빌/콘페티 없이 MatchResult 바로 표시
 ```
+
+### 그룹 관리 - 어드민 (`/admin/groups`)
+- 오케스트레이터: `GroupManagement` (`src/components/group-management.tsx`)
+- **인증**: Phase 2에서 Supabase 어드민 로그인 필요 (현재 미인증 상태에서도 접근 가능)
+
+#### 그룹 설정 카드 목록
+- 각 카드: `rounded-xl border bg-card p-5`
+- **제목**: `text-lg font-bold`
+- **뱃지들**: 요일 스케줄 (CalendarDays), 최대 인원 (Users), 마감 시각 (Clock)
+  - 로테이션 요일: `수 → 목 반복` 또는 `매주 수요일` 형태
+- **액션 버튼**: 수정 (Pencil), 삭제 (Trash2) — hover 시 표시
+- **빈 상태**: 점선 border + "등록된 그룹이 없습니다" + 추가 버튼
+
+#### 그룹 추가/수정 폼 (`src/components/group-config-form.tsx`)
+- Dialog 기반 (DialogContent)
+- **그룹 이름**: Input `text-base`
+- **요일 로테이션 (schedule)**:
+  - 주차별 요일 선택 UI: `1주차`, `2주차`, ... 라벨 + 요일 pill 버튼 (월~금)
+  - `+ 주차 추가` 버튼으로 로테이션 주기 확장
+  - 각 주차 X 버튼으로 삭제 가능 (최소 1주차는 유지)
+  - **미리보기**: 1주차만 → `매주 {요일}요일`, 2주차 이상 → `{요일} → {요일} 반복`
+- **최대 참여 인원**: Input `type="number"` (최소 3, 최대 제한 없음)
+- **매칭 마감 시각**: Input `type="time"` (기본값 11:00)
+- **슬랙 채널 URL**: Input (선택)
+
+#### 삭제 확인
+- AlertDialog: 그룹 이름 볼드 + "삭제하시겠습니까?"
 
 ## 반응형 Breakpoints
 

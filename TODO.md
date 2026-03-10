@@ -43,6 +43,17 @@
 - [x] 대시보드 하단 과거 기록 테이블 (PastMatchTable: 그룹 이름 / 진행일)
 - [x] 테이블 row 클릭 → 상세 페이지 (결과 바로 노출, 리빌 없음)
 
+## Phase 1.8 - 어드민 (그룹 관리)
+
+- [x] GroupConfig 타입 정의 (dayOfWeek, frequency, biweeklyWeek, maxParticipants 등)
+- [x] 어드민 그룹 관리 페이지 (`/admin/groups`)
+- [x] 그룹 추가/수정 폼 (GroupConfigForm): 이름, 요일, 격주, 최대인원, 마감시각, 슬랙URL
+- [x] 그룹 삭제 확인 다이얼로그
+- [x] 사이드바에 "그룹 관리" 메뉴 추가 (FolderCog 아이콘)
+- [x] Mock 데이터 (mockGroupConfigs)
+- [ ] Supabase 어드민 인증 (이메일/패스워드) → 인증 시에만 사이드바 + 페이지 노출
+- [ ] Server Actions 연동 (CRUD)
+
 ## Phase 2 - Supabase 연동
 
 - [ ] DB 스키마 진화 (groups 확장, slack_channel_url, match_results 테이블 추가)
