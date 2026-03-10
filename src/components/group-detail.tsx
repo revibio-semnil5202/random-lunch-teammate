@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Calendar, Users, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { ParticipantForm } from "@/components/participant-form";
 import { ParticipantList } from "@/components/participant-list";
 import { RegisterConfirmDialog } from "@/components/register-confirm-dialog";
@@ -113,12 +112,7 @@ export function GroupDetail({ group }: GroupDetailProps) {
 
       {/* 등록 폼 영역 */}
       <div className="rounded-2xl border bg-card p-6">
-        <div className="flex items-center gap-2 mb-5">
-          <h2 className="text-lg font-semibold">참여 등록</h2>
-          <Badge variant="outline" className="text-xs">
-            필수
-          </Badge>
-        </div>
+        <h2 className="text-lg font-semibold mb-5">참여 등록</h2>
         <ParticipantForm
           selectedTeam={selectedTeam}
           onTeamChange={setSelectedTeam}

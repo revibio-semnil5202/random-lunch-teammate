@@ -61,7 +61,7 @@ export function ParticipantForm({
           onChange={(e) => onNameChange(e.target.value)}
           placeholder="이름을 입력하세요"
           maxLength={10}
-          className="max-w-xs"
+          className="max-w-sm text-base h-10"
         />
       </div>
 
