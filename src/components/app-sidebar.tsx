@@ -53,10 +53,7 @@ export function AppSidebar() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <Utensils className="h-4 w-4 text-primary-foreground" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-bold leading-tight">랜덤 점심</span>
-            <span className="text-[11px] text-muted-foreground leading-tight">팀메이트</span>
-          </div>
+          <span className="text-sm font-bold">랜덤 점심 팀메이트</span>
         </Link>
       </SidebarHeader>
 

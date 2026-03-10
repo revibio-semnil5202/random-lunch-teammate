@@ -7,8 +7,6 @@ interface PastMatchTableProps {
 }
 
 export function PastMatchTable({ groups }: PastMatchTableProps) {
-  if (groups.length === 0) return null;
-
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -16,6 +14,9 @@ export function PastMatchTable({ groups }: PastMatchTableProps) {
         <h2 className="text-lg font-bold">지난 팀점 기록</h2>
       </div>
 
+      {groups.length === 0 ? (
+        <p className="text-sm text-muted-foreground py-4 text-center">지난 매칭 기록이 없습니다.</p>
+      ) : (
       <div className="overflow-hidden rounded-xl border">
         <table className="w-full">
           <thead>
@@ -52,6 +53,7 @@ export function PastMatchTable({ groups }: PastMatchTableProps) {
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }
