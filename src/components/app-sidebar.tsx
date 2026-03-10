@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, UtensilsCrossed } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, Utensils, Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar";
 
@@ -33,28 +35,39 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="h-14 border-b px-4 flex items-center">
+      {/* 로고 영역 */}
+      <SidebarHeader className="px-4 py-4">
         <Link
           href="/"
           onClick={() => setOpenMobile(false)}
-          className="text-lg font-bold text-primary"
+          className="flex items-center gap-2.5"
         >
-          랜덤 점심 팀메이트
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+            <Utensils className="h-4 w-4 text-primary-foreground" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-bold leading-tight">랜덤 점심</span>
+            <span className="text-[11px] text-muted-foreground leading-tight">팀메이트</span>
+          </div>
         </Link>
       </SidebarHeader>
-      <SidebarContent>
+
+      <SidebarSeparator />
+
+      {/* 내비게이션 */}
+      <SidebarContent className="px-2">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-2">
+            <SidebarMenu className="gap-1">
               {NAV_ITEMS.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     render={<Link href={item.href} />}
                     isActive={isActive(item.href)}
                     onClick={() => setOpenMobile(false)}
-                    className="text-base"
+                    className="h-10 text-[15px] rounded-lg"
                   >
-                    <item.icon />
+                    <item.icon className="h-[18px] w-[18px]" />
                     <span>{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -63,6 +76,19 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      {/* 푸터 */}
+      <SidebarFooter className="px-2 pb-4">
+        <SidebarSeparator className="mb-2" />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton className="h-9 text-sm text-muted-foreground rounded-lg">
+              <Settings className="h-4 w-4" />
+              <span>설정</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
