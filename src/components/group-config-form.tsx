@@ -148,12 +148,12 @@ export function GroupConfigForm({
         </div>
       </div>
 
-      {/* 최대 인원 */}
+      {/* 조별 최대 인원 */}
       <div className="space-y-2">
         <div>
-          <Label className="text-sm font-semibold">최대 인원</Label>
+          <Label className="text-sm font-semibold">조별 최대 인원</Label>
           <p className="text-xs text-muted-foreground mt-0.5">
-            최소 인원은 3명으로 고정됩니다.
+            매칭 시 한 조에 배정되는 최대 인원입니다. 최소 3명으로 고정됩니다.
           </p>
         </div>
         <div className="flex items-center gap-3">

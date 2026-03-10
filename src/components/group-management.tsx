@@ -134,7 +134,7 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
                     </Badge>
                     <Badge variant="secondary" className="gap-1">
                       <Users className="h-3 w-3" />
-                      최대 {config.maxParticipants}명
+                      조별 {config.maxParticipants}명
                     </Badge>
                     <Badge variant="secondary" className="gap-1">
                       <Clock className="h-3 w-3" />

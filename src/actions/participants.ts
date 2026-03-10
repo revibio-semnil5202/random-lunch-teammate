@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { members, lunchEvents, eventParticipants, groupConfigs } from "@/db/schema";
+import { members, lunchEvents, eventParticipants } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import type { Participant } from "@/types";
 
@@ -27,10 +27,8 @@ export async function registerParticipant({
     .select({
       id: lunchEvents.id,
       status: lunchEvents.status,
-      maxParticipants: groupConfigs.maxParticipants,
     })
     .from(lunchEvents)
-    .innerJoin(groupConfigs, eq(lunchEvents.groupConfigId, groupConfigs.id))
     .where(eq(lunchEvents.id, eventIdNum))
     .limit(1);
 
@@ -44,7 +42,7 @@ export async function registerParticipant({
     return { success: false, error: "현재 참여 신청을 받지 않는 이벤트입니다." };
   }
 
-  // 현재 참여자 목록 조회 (중복 및 정원 확인)
+  // 현재 참여자 목록 조회 (중복 확인)
   const currentParticipants = await db
     .select({
       memberId: eventParticipants.memberId,
@@ -54,10 +52,6 @@ export async function registerParticipant({
     .from(eventParticipants)
     .innerJoin(members, eq(eventParticipants.memberId, members.id))
     .where(eq(eventParticipants.eventId, eventIdNum));
-
-  if (currentParticipants.length >= event.maxParticipants) {
-    return { success: false, error: "참여 인원이 가득 찼습니다." };
-  }
 
   const duplicate = currentParticipants.some(
     (p) => p.department === team && p.name === trimmedName
