@@ -69,7 +69,7 @@ export function TimePicker({
   value,
   onChange,
   hourRange = [0, 23],
-  minuteStep = 5,
+  minuteStep = 30,
 }: TimePickerProps) {
   const [h, m] = value.split(":");
 

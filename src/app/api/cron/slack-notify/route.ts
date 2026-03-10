@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { groupConfigs, lunchEvents, eventParticipants } from "@/db/schema";
-import { eq, and, isNotNull } from "drizzle-orm";
+import { eq, and, gte, lte, isNotNull } from "drizzle-orm";
 import { sendWeeklyNotice, sendDeadlineReminder } from "@/lib/slack";
 import { ensureThisWeekEvent } from "@/actions/admin";
 import type { DayOfWeek } from "@/types";
@@ -39,24 +39,29 @@ export async function POST(request: Request) {
     );
   }
 
-  // webhook URL이 설정된 그룹 설정 조회
-  const activeConfigs = await db
-    .select()
-    .from(groupConfigs)
-    .where(isNotNull(groupConfigs.slackWebhookUrl));
-
-  if (activeConfigs.length === 0) {
-    return NextResponse.json({
-      message: "Webhook URL이 설정된 그룹이 없습니다.",
-      sent: 0,
-    });
+  if (type === "reminder") {
+    return handleReminder();
   }
 
-  const results: { groupTitle: string; success: boolean; error?: string }[] =
-    [];
+  return handleWeekly();
+}
+
+/** 주간 참여 안내: 모든 그룹의 이벤트 생성 + 슬랙 발송 */
+async function handleWeekly() {
+  // 이번 주 이벤트 자동 생성
+  const allConfigs = await db.select().from(groupConfigs);
+  await Promise.allSettled(
+    allConfigs.map((c) =>
+      ensureThisWeekEvent(c.id, c.schedule as DayOfWeek[], c.matchDeadlineTime)
+    )
+  );
+
+  // webhook URL이 설정된 그룹만
+  const activeConfigs = allConfigs.filter((c) => c.slackWebhookUrl);
+
+  const results: { groupTitle: string; success: boolean; error?: string }[] = [];
 
   for (const config of activeConfigs) {
-    // 현재 모집 중인 이벤트 조회
     const events = await db
       .select()
       .from(lunchEvents)
@@ -69,66 +74,95 @@ export async function POST(request: Request) {
       .limit(1);
 
     if (events.length === 0) {
-      results.push({
-        groupTitle: config.title,
-        success: false,
-        error: "모집 중인 이벤트 없음",
-      });
+      results.push({ groupTitle: config.title, success: false, error: "모집 중인 이벤트 없음" });
       continue;
     }
 
     const event = events[0];
-
-    // 참여자 수 조회
     const participants = await db
       .select({ id: eventParticipants.id })
       .from(eventParticipants)
       .where(eq(eventParticipants.eventId, event.id));
 
-    const participantCount = participants.length;
-    const eventId = event.id.toString();
-
     try {
-      if (type === "weekly") {
-        // 점심 날짜에서 요일 추출
-        const lunchDate = new Date(event.lunchDate);
-        const days = ["일", "월", "화", "수", "목", "금", "토"];
-        const lunchDay = `${days[lunchDate.getDay()]}요일 (${event.lunchDate})`;
+      const lunchDate = new Date(event.lunchDate);
+      const days = ["일", "월", "화", "수", "목", "금", "토"];
+      const lunchDay = `${days[lunchDate.getDay()]}요일 (${event.lunchDate})`;
 
-        await sendWeeklyNotice(
-          config.slackWebhookUrl!,
-          config.title,
-          lunchDay,
-          participantCount,
-          eventId
-        );
-      } else {
-        await sendDeadlineReminder(
-          config.slackWebhookUrl!,
-          config.title,
-          config.matchDeadlineTime,
-          participantCount,
-          eventId
-        );
-      }
-
+      await sendWeeklyNotice(
+        config.slackWebhookUrl!,
+        config.title,
+        lunchDay,
+        participants.length,
+        event.id.toString()
+      );
       results.push({ groupTitle: config.title, success: true });
     } catch (e) {
-      results.push({
-        groupTitle: config.title,
-        success: false,
-        error: String(e),
-      });
+      results.push({ groupTitle: config.title, success: false, error: String(e) });
     }
   }
 
   const sent = results.filter((r) => r.success).length;
-  const failed = results.filter((r) => !r.success).length;
+  return NextResponse.json({ message: `weekly 알림: 성공 ${sent}건`, sent, results });
+}
 
-  return NextResponse.json({
-    message: `${type} 알림: 성공 ${sent}건, 실패 ${failed}건`,
-    sent,
-    failed,
-    results,
-  });
+/** 마감 리마인더: 마감 30분~1시간 30분 전인 이벤트에 발송 */
+async function handleReminder() {
+  const now = new Date();
+  const min30 = new Date(now.getTime() + 30 * 60 * 1000);
+  const min90 = new Date(now.getTime() + 90 * 60 * 1000);
+
+  // 마감이 30분~1시간30분 후인 모집 중 이벤트 조회
+  const upcomingEvents = await db
+    .select({
+      eventId: lunchEvents.id,
+      matchDeadline: lunchEvents.matchDeadline,
+      configId: lunchEvents.groupConfigId,
+    })
+    .from(lunchEvents)
+    .where(
+      and(
+        eq(lunchEvents.status, "recruiting"),
+        gte(lunchEvents.matchDeadline, min30),
+        lte(lunchEvents.matchDeadline, min90)
+      )
+    );
+
+  if (upcomingEvents.length === 0) {
+    return NextResponse.json({ message: "리마인더 대상 이벤트 없음", sent: 0 });
+  }
+
+  const results: { groupTitle: string; success: boolean; error?: string }[] = [];
+
+  for (const event of upcomingEvents) {
+    const configs = await db
+      .select()
+      .from(groupConfigs)
+      .where(eq(groupConfigs.id, event.configId))
+      .limit(1);
+
+    if (configs.length === 0 || !configs[0].slackWebhookUrl) continue;
+
+    const config = configs[0];
+    const participants = await db
+      .select({ id: eventParticipants.id })
+      .from(eventParticipants)
+      .where(eq(eventParticipants.eventId, event.eventId));
+
+    try {
+      await sendDeadlineReminder(
+        config.slackWebhookUrl!,
+        config.title,
+        config.matchDeadlineTime,
+        participants.length,
+        event.eventId.toString()
+      );
+      results.push({ groupTitle: config.title, success: true });
+    } catch (e) {
+      results.push({ groupTitle: config.title, success: false, error: String(e) });
+    }
+  }
+
+  const sent = results.filter((r) => r.success).length;
+  return NextResponse.json({ message: `reminder 알림: 성공 ${sent}건`, sent, results });
 }

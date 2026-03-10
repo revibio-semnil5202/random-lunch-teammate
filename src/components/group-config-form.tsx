@@ -144,7 +144,7 @@ export function GroupConfigForm({
         <div>
           <Label className="text-sm font-semibold">조별 최대 인원</Label>
           <p className="text-xs text-muted-foreground mt-0.5">
-            매칭 시 한 조에 배정되는 최대 인원입니다. 최소 3명으로 고정됩니다.
+            매칭 시 한 조에 배정되는 최대 인원입니다. 최소 3명 이상이어야 조가 나뉘며, 인원이 부족하면 한 조로 배정될 수 있습니다.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -171,7 +171,7 @@ export function GroupConfigForm({
         <div>
           <Label className="text-sm font-semibold">매칭 마감 시각</Label>
           <p className="text-xs text-muted-foreground mt-0.5">
-            진행 요일 당일, 이 시간에 매칭 결과가 자동으로 발표됩니다.
+            진행 요일 당일, 이 시간에 매칭 결과가 자동으로 발표됩니다. 점심시간 최소 1시간 전으로 설정해 주세요.
           </p>
         </div>
 

@@ -4,6 +4,9 @@ on:
   schedule:
     # 매주 월요일 KST 10:00 = UTC 01:00 → 주간 참여 안내 + 이벤트 자동 생성
     - cron: "0 1 * * 1"
+    # 평일 30분마다 KST 08:00~12:30 = UTC 23:00~03:30 → 마감 리마인더 체크
+    - cron: "0,30 23 * * 0-4"
+    - cron: "0,30 0-3 * * 1-5"
   workflow_dispatch:
     inputs:
       type:
@@ -15,9 +18,20 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+      - name: Determine notification type
+        id: type
+        run: |
+          if [ -n "${{ github.event.inputs.type }}" ]; then
+            echo "value=${{ github.event.inputs.type }}" >> $GITHUB_OUTPUT
+          elif [ "$(date -u +%u)" = "1" ] && [ "$(date -u +%H)" = "01" ]; then
+            echo "value=weekly" >> $GITHUB_OUTPUT
+          else
+            echo "value=reminder" >> $GITHUB_OUTPUT
+          fi
+
       - name: Send Slack notification
         run: |
-          TYPE="${{ github.event.inputs.type || 'weekly' }}"
+          TYPE="${{ steps.type.outputs.value }}"
 
           response=$(curl -s -w "\n%{http_code}" -X POST \
             "${{ secrets.APP_URL }}/api/cron/slack-notify?type=${TYPE}" \
@@ -27,6 +41,7 @@ jobs:
           http_code=$(echo "$response" | tail -1)
           body=$(echo "$response" | head -n -1)
 
+          echo "Type: $TYPE"
           echo "Status: $http_code"
           echo "Response: $body"
 

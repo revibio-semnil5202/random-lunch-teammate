@@ -66,7 +66,7 @@
 - [x] 주간 참여 안내 (`/api/cron/slack-notify?type=weekly`)
 - [x] 마감 전 리마인더 (`/api/cron/slack-notify?type=reminder`)
 - [x] 매칭 결과 자동 발송 (매칭 완료 시)
-- [ ] GitHub Actions cron 추가 (월요일 10시 weekly, 마감 1시간 전 reminder)
+- [x] GitHub Actions cron (월요일 10시 weekly, 마감 1시간 전 reminder)
 
 ## Phase 2.7 - 과거 기록 관리
 
@@ -75,8 +75,8 @@
 
 ## 임시 변경 (되돌리기 필요)
 
-- [ ] match-cron.yml: 24시간 → KST 09:00~18:00으로 복원 (`*/5 0-9 * * 1-5`)
-- [ ] TimePicker: 분 선택 제거, 정시(HH:00)만 선택 가능하도록 복원
+- [x] ~~match-cron.yml: 24시간 → KST 08:00~12:30 30분 단위로 변경~~
+- [x] ~~TimePicker: 30분 단위로 변경~~
 
 ## Phase 3 - 인증 + 안정화 ✅
 
@@ -95,6 +95,5 @@
 
 ## Phase 4 - 남은 작업
 
-- [ ] GitHub Actions cron 추가 (월요일 10시 weekly, 마감 1시간 전 reminder)
-- [ ] 과거 기록 검색/필터
+- [x] GitHub Actions cron (월요일 10시 weekly, 마감 1시간 전 reminder)
 - [ ] Zod 입력값 검증
