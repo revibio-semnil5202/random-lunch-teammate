@@ -159,7 +159,7 @@ export function RestaurantList({ restaurants }: RestaurantListProps) {
         {/* Active Filter Tags */}
         {hasActiveFilter && (
           <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t pt-3">
-            <span className="text-xs text-muted-foreground mr-1">필터:</span>
+            <span className="text-sm text-muted-foreground mr-1">필터:</span>
             {search && (
               <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
                 &ldquo;{search}&rdquo;
