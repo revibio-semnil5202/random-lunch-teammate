@@ -66,6 +66,15 @@
 - [ ] revalidatePath 캐시 무효화
 - [ ] 에러 핸들링 (toast 알림)
 
+## Phase 2.5 - 슬랙 알림
+
+- [x] 슬랙 알림 발송 모듈 (`src/lib/slack.ts`)
+- [x] 주간 참여 안내 (매주 월요일 10시, `/api/cron/slack-notify?type=weekly`)
+- [x] 마감 전 리마인더 (`/api/cron/slack-notify?type=reminder`)
+- [x] 매칭 결과 자동 발송 (`createRandomMatch` 완료 시)
+- [ ] TODO: SERVICE_URL을 실제 배포 URL로 교체 (`src/lib/slack.ts`)
+- [ ] GitHub Actions cron 추가 (월요일 10시 weekly, 매칭 당일 마감 1시간 전 reminder)
+
 ## Phase 3 - 기능 확장
 
 - [ ] 매칭 히스토리 페이지네이션
