@@ -2,8 +2,8 @@ name: Random Lunch Match
 
 on:
   schedule:
-    # 평일 5분마다 (KST 09:00~18:00 = UTC 00:00~09:00)
-    - cron: "*/5 0-9 * * 1-5"
+    # 임시: 24시간 5분마다 (평일)
+    - cron: "*/5 * * * 1-5"
   workflow_dispatch: # 수동 실행 가능
 
 jobs:
