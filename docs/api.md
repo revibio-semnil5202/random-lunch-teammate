@@ -45,10 +45,11 @@
 ## 일반 Actions
 
 ### getGroups
-- **파일**: `src/actions/groups.ts` (예정)
+- **파일**: `src/actions/groups.ts`
 - **설명**: 대시보드용 이벤트 목록 조회 (진행중 + 과거 기록)
 - **반환**: `{ active: Group[], past: Group[] }`
-- **현재**: `src/mocks/groups.ts`에서 `mockGroups`, `mockPastGroups` 직접 import
+- **active**: 이번 주 (월~일) lunch_events
+- **past**: 이번 주 이전 matched 이벤트, 최대 10개 (desc lunchDate)
 
 ### getGroupDetail
 - **파일**: `src/actions/groups.ts` (예정)
@@ -87,13 +88,19 @@
 
 ### createRandomMatch
 - **파일**: `src/actions/match.ts`
-- **설명**: 전체 멤버를 랜덤으로 섞어 그룹으로 나누고 DB에 저장
-- **파라미터**: `maxGroupSize: number` (기본값: 4, 최대: 12)
+- **설명**: 이벤트의 참여자를 랜덤으로 섞어 그룹으로 나누고 DB에 저장
+- **파라미터**: `eventId: string`
 - **로직**: `src/lib/match.ts`의 순수 함수 `createMatch` 사용
   - 3명 미만: 매칭 불가
   - 3~5명: 한 그룹 (셔플 안 함)
   - 6명 이상: Fisher-Yates 셔플 → 균등 분배
-- **반환**: `{ success: boolean; groups?: { groupId, members }[]; message?: string }`
+- **반환**: `{ success: boolean; groups?: { groupIndex, memberIds }[]; message?: string }`
+- **후처리**:
+  - lunchEvents status → "matched" 업데이트
+  - revalidatePath("/", "/groups/{eventId}")
+  - 슬랙 매칭 결과 알림 (slackWebhookUrl 있을 때)
+  - `cleanupOldEvents()`: matched 이벤트 10개 초과 시 오래된 것 자동 삭제
+    - 삭제 순서: matchResults → eventParticipants → lunchEvents
 
 ## API Routes
 

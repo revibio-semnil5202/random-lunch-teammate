@@ -75,13 +75,11 @@
 - [ ] TODO: SERVICE_URL을 실제 배포 URL로 교체 (`src/lib/slack.ts`)
 - [ ] GitHub Actions cron 추가 (월요일 10시 weekly, 매칭 당일 마감 1시간 전 reminder)
 
+## Phase 2.7 - 과거 기록 관리
+
+- [x] 대시보드 과거 기록 최대 10개 표시 (쿼리 limit 10)
+- [x] 매칭 완료 후 matched 이벤트 10개 초과 시 오래된 것 자동 삭제 (cleanupOldEvents)
+
 ## Phase 3 - 기능 확장
 
-- [ ] 매칭 히스토리 페이지네이션
 - [ ] 과거 기록 검색/필터
-
-## Phase 4 - 회사 근처 식당
-
-- [ ] 식당 목록 CRUD
-- [ ] 지도 연동 (카카오맵 or 네이버맵)
-- [ ] 식당 추천 기능
