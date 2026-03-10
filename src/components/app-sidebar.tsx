@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, UtensilsCrossed, Utensils, Settings } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, Utensils } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -77,18 +76,6 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* 푸터 */}
-      <SidebarFooter className="px-2 pb-4">
-        <SidebarSeparator className="mb-2" />
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton className="h-9 text-sm text-muted-foreground rounded-lg">
-              <Settings className="h-4 w-4" />
-              <span>설정</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
     </Sidebar>
   );
 }
