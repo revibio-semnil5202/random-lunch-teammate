@@ -4,7 +4,7 @@ interface SlackBlock {
   type: string;
   text?: { type: string; text: string; emoji?: boolean };
   elements?: { type: string; text: string }[];
-  accessory?: { type: string; text: { type: string; text: string; emoji?: boolean }; url: string };
+  accessory?: { type: string; text: { type: string; text: string; emoji?: boolean }; url: string; action_id: string };
 }
 
 async function sendSlackMessage(webhookUrl: string, blocks: SlackBlock[]) {
@@ -48,6 +48,7 @@ export async function sendWeeklyNotice(
         type: "button",
         text: { type: "plain_text", text: "참여하기", emoji: true },
         url: `${SERVICE_URL}/groups/${groupId}`,
+        action_id: "join_group",
       },
     },
     {
@@ -92,6 +93,7 @@ export async function sendDeadlineReminder(
         type: "button",
         text: { type: "plain_text", text: "확인하기", emoji: true },
         url: `${SERVICE_URL}/groups/${groupId}`,
+        action_id: "check_group",
       },
     },
     {
@@ -136,6 +138,7 @@ export async function sendMatchResult(
         type: "button",
         text: { type: "plain_text", text: "결과 보기", emoji: true },
         url: `${SERVICE_URL}/groups/${groupId}`,
+        action_id: "view_result",
       },
     },
     {
