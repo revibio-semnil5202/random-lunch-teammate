@@ -16,6 +16,15 @@ export async function registerParticipant({
   name: string;
 }): Promise<{ success: true; participant: Participant } | { success: false; error: string }> {
   const trimmedName = name.trim();
+  const trimmedTeam = team.trim();
+
+  if (!trimmedName) {
+    return { success: false, error: "이름을 입력해 주세요." };
+  }
+
+  if (!trimmedTeam) {
+    return { success: false, error: "소속을 입력해 주세요." };
+  }
 
   if (trimmedName.length > 10) {
     return { success: false, error: "이름은 최대 10자까지 입력할 수 있습니다." };
@@ -54,7 +63,7 @@ export async function registerParticipant({
     .where(eq(eventParticipants.eventId, eventIdNum));
 
   const duplicate = currentParticipants.some(
-    (p) => p.department === team && p.name === trimmedName
+    (p) => p.department === trimmedTeam && p.name === trimmedName
   );
   if (duplicate) {
     return { success: false, error: "이미 동일한 팀/이름으로 참여 신청이 되어 있습니다." };
@@ -63,7 +72,7 @@ export async function registerParticipant({
   // members 테이블에 INSERT
   const [newMember] = await db
     .insert(members)
-    .values({ name: trimmedName, department: team })
+    .values({ name: trimmedName, department: trimmedTeam })
     .returning();
 
   // event_participants 테이블에 INSERT
