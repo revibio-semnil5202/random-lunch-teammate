@@ -17,7 +17,7 @@
 | `/` | 대시보드 | 진행중 그룹 카드 + 과거 기록 테이블 |
 | `/groups/[id]` | 그룹 상세 | 모집중: 참여자 등록/삭제, 매칭완료: 리빌 연출 + 결과 표시, 과거 기록: 결과 바로 표시 |
 | `/admin/groups` | 그룹 관리 (어드민) | 그룹 설정 CRUD, 요일 로테이션, 최대 인원. Phase 2에서 Supabase 인증 필요 |
-| `/restaurants` | 식당 목록 | placeholder |
+| `/restaurants` | 회사 근처 식당 | Google Sheets 연동, 검색/필터, 네이버 지도 링크 |
 
 ## 레이아웃
 
@@ -142,12 +142,50 @@
   - `+ 주차 추가` 버튼으로 로테이션 주기 확장
   - 각 주차 X 버튼으로 삭제 가능 (최소 1주차는 유지)
   - **미리보기**: 1주차만 → `매주 {요일}요일`, 2주차 이상 → `{요일} → {요일} 반복`
-- **최대 참여 인원**: Input `type="number"` (최소 3, 최대 제한 없음)
+- **최대 참여 인원**: Input `type="number"` (최소 3, 최대 12, 기본값 4, 스피너 화살표 제거)
+  - 라벨 하단 12px: "최소 인원은 3명으로 고정됩니다."
 - **매칭 마감 시각**: Input `type="time"` (기본값 11:00)
-- **슬랙 채널 URL**: Input (선택)
+  - 라벨 하단 12px: "이 시간에 매칭 결과가 자동으로 발표됩니다."
+- **슬랙 채널 바로가기**: Input (선택)
+  - 라벨 하단 12px: "매칭 결과 페이지에서 슬랙 채널로 이동하는 버튼에 사용됩니다."
+- **슬랙 알림 Webhook**: Input (선택)
+  - 라벨 하단 12px: "참여 안내, 마감 리마인더, 매칭 결과를 자동으로 슬랙에 발송합니다."
 
 #### 삭제 확인
 - AlertDialog: 그룹 이름 볼드 + "삭제하시겠습니까?"
+
+### 회사 근처 식당 (`/restaurants`)
+- 서버 컴포넌트에서 Google Sheets 공개 CSV fetch (`force-dynamic`)
+- 클라이언트 컴포넌트: `RestaurantList` (`src/components/restaurant-list.tsx`)
+
+#### 헤더
+- "회사 근처 식당" + 카운트 Badge (`bg-primary/10`)
+- **식당 추가 버튼**: primary 컬러, Plus 아이콘, Google Sheets 새 탭 열기
+  - PC: `+ 식당 추가`, 모바일: `+` 아이콘만
+
+#### 검색 & 필터
+- `rounded-2xl border` 그라데이션 카드 안에 배치
+- **검색**: Search 아이콘 + Input (`h-10`), 식당 이름으로 실시간 필터
+- **필터 드롭다운**: Select (`!h-10`, `min-w-[160px]`)
+  - 음식 종류: 라벨 항상 표시 ("음식 종류: 전체" → "음식 종류: 한식")
+  - 식대 유무: 라벨 항상 표시 ("식대: 전체" → "식대: 가능")
+  - 모바일: `flex-1` 균등 분할
+- **활성 필터 태그**: `rounded-full bg-primary/10` pill, 개별 X 버튼으로 제거
+- **초기화 버튼**: 모바일에서는 X 아이콘만
+
+#### 식당 카드 (갤러리 그리드)
+- `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4`
+- GroupCard 디자인 패턴 적용: `rounded-2xl border` + 좌측 컬러바 + 그라데이션 배경
+- hover: `-translate-y-0.5 shadow-lg`
+- 상단: 식당명 (font-bold) + 카테고리 뱃지 (`rounded-full bg-primary/10`)
+- 하단: 식대 유무 (CreditCard 아이콘) + 네이버 지도 버튼 (`bg-[#03C75A]`, MapPin 아이콘)
+
+#### 토스트
+- 페이지 진입 시 info 토스트: "시트에 식당을 추가하면 약 5분 뒤 반영됩니다." (4초)
+- PC: `top-center`, 모바일: `bottom-center`
+
+#### SEO
+- 전체 페이지 `robots: { index: false, follow: false }` — 사내 서비스
 
 ## 반응형 Breakpoints
 

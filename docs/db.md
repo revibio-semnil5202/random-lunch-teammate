@@ -34,7 +34,7 @@
 | id | serial | PK | 그룹 설정 고유 ID |
 | title | varchar(100) | NOT NULL | 그룹 이름 |
 | schedule | jsonb | NOT NULL | 요일 로테이션 배열 (ex: `["수","목"]`) |
-| max_participants | integer | NOT NULL, default 12 | 최대 참여 인원 (최소 3) |
+| max_participants | integer | NOT NULL, default 4 | 최대 참여 인원 (최소 3, 최대 12) |
 | match_deadline_time | varchar(5) | NOT NULL, default '11:00' | 매칭 마감 시각 (HH:MM) |
 | slack_channel_url | varchar(500) | nullable | 슬랙 채널 바로가기 URL |
 | slack_webhook_url | varchar(500) | nullable | 슬랙 Incoming Webhook URL (알림 발송용) |
@@ -95,6 +95,7 @@ interface GroupConfig {
   maxParticipants: number;
   matchDeadlineTime: string; // "11:00"
   slackChannelUrl?: string;
+  slackWebhookUrl?: string;
   createdAt: string;
 }
 ```
@@ -142,9 +143,9 @@ TypeScript 상수 배열 (`src/constants/teams.ts`) + 직접 입력 지원:
 
 ```typescript
 export const TEAMS = [
-  "기획", "마케팅", "광고", "출판",
-  "백엔드", "프론트", "iOS", "Android", "플러터",
-  "디자인", "인사", "총무", "QA",
+  "기획", "마케팅", "광고", "출판", "디자인",
+  "백엔드", "프론트", "iOS", "Android", "플러터", "QA",
+  "인사", "총무", "데이터",
 ] as const;
 ```
 
