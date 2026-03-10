@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
+import { Calendar, Users, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { ParticipantForm } from "@/components/participant-form";
 import { ParticipantList } from "@/components/participant-list";
 import { RegisterConfirmDialog } from "@/components/register-confirm-dialog";
@@ -38,7 +40,6 @@ export function GroupDetail({ group }: GroupDetailProps) {
 
   const handleRegisterConfirm = async () => {
     setIsRegisterLoading(true);
-    // Mock POST delay
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     const newParticipant: Participant = {
@@ -63,7 +64,6 @@ export function GroupDetail({ group }: GroupDetailProps) {
   const handleDeleteConfirm = async () => {
     if (!targetDeleteParticipant) return;
     setIsDeleteLoading(true);
-    // Mock DELETE delay
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     setParticipants((prev) =>
@@ -75,30 +75,68 @@ export function GroupDetail({ group }: GroupDetailProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* 헤더 영역 */}
       <div>
-        <h1 className="text-2xl font-bold">{group.title}</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          팀점 진행일: {group.lunchDateDisplay}
-        </p>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          대시보드
+        </Link>
+
+        <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/5 via-background to-primary/10 p-6">
+          <div className="absolute left-0 top-0 h-full w-1 bg-primary rounded-l-2xl" />
+          <h1 className="text-2xl font-bold mb-3">{group.title}</h1>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10">
+                <Users className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <span className="text-sm font-semibold">
+                {participants.length}명 참여
+              </span>
+            </div>
+            <div className="h-4 w-px bg-border" />
+            <div className="flex items-center gap-1.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10">
+                <Calendar className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">
+                {group.lunchDateDisplay}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <ParticipantForm
-        selectedTeam={selectedTeam}
-        onTeamChange={setSelectedTeam}
-        nameInput={nameInput}
-        onNameChange={setNameInput}
-        onSubmit={handleRegisterClick}
-        isDisabled={!selectedTeam || !nameInput.trim() || isDuplicate}
-        isDuplicate={isDuplicate}
-      />
+      {/* 등록 폼 영역 */}
+      <div className="rounded-2xl border bg-card p-6">
+        <div className="flex items-center gap-2 mb-5">
+          <h2 className="text-lg font-semibold">참여 등록</h2>
+          <Badge variant="outline" className="text-xs">
+            필수
+          </Badge>
+        </div>
+        <ParticipantForm
+          selectedTeam={selectedTeam}
+          onTeamChange={setSelectedTeam}
+          nameInput={nameInput}
+          onNameChange={setNameInput}
+          onSubmit={handleRegisterClick}
+          isDisabled={!selectedTeam || !nameInput.trim() || isDuplicate}
+          isDuplicate={isDuplicate}
+        />
+      </div>
 
-      <Separator />
-
-      <ParticipantList
-        participants={participants}
-        onDeleteClick={handleDeleteClick}
-      />
+      {/* 참여자 목록 영역 */}
+      <div className="rounded-2xl border bg-card p-6">
+        <ParticipantList
+          participants={participants}
+          onDeleteClick={handleDeleteClick}
+        />
+      </div>
 
       <RegisterConfirmDialog
         open={isRegisterModalOpen}

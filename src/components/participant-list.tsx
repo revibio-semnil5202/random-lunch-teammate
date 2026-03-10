@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { ParticipantItem } from "@/components/participant-item";
+import { Users } from "lucide-react";
 import type { Participant } from "@/types";
 
 interface ParticipantListProps {
@@ -26,30 +27,35 @@ export function ParticipantList({
 
   if (participants.length === 0) {
     return (
-      <div className="py-10 text-center text-muted-foreground">
-        아직 참여자가 없습니다.
+      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+        <Users className="h-10 w-10 mb-3 opacity-30" />
+        <p className="text-sm">아직 참여자가 없습니다.</p>
+        <p className="text-xs mt-1">위에서 소속 팀과 이름을 입력하여 등록해주세요.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex items-center gap-2">
         <h2 className="text-lg font-semibold">참여자 목록</h2>
-        <Badge variant="secondary">{participants.length}명</Badge>
+        <Badge className="bg-primary/10 text-primary border-0 font-semibold">
+          {participants.length}명
+        </Badge>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 w-full">
+
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 w-full">
         {teams.map((team) => (
           <div key={team} className="min-w-0">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-sm font-semibold text-muted-foreground">
+            <div className="flex items-center gap-2 mb-2.5 pb-2 border-b">
+              <span className="text-sm font-bold text-foreground">
                 {team}
               </span>
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs h-5 px-1.5">
                 {grouped[team].length}
               </Badge>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1.5">
               {grouped[team].map((participant) => (
                 <ParticipantItem
                   key={participant.id}
