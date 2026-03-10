@@ -167,7 +167,7 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
 
       {/* 추가 다이얼로그 */}
       <Dialog open={isFormOpen} onOpenChange={(open) => { setIsFormOpen(open); if (!open) setActionError(null); }}>
-        <DialogContent>
+        <DialogContent keepMounted>
           <DialogHeader>
             <DialogTitle>그룹 추가</DialogTitle>
           </DialogHeader>
