@@ -22,7 +22,7 @@ interface RestaurantListProps {
 
 export function RestaurantList({ restaurants }: RestaurantListProps) {
   useEffect(() => {
-    const id = toast.info('시트에 식당을 추가하면 약 5분 뒤 반영됩니다.', {
+    const id = toast.info('시트에 식당을 추가하면 약 2분 뒤 반영됩니다.', {
       duration: 4000,
     });
     return () => {

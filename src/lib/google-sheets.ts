@@ -36,7 +36,7 @@ function parseCSVLine(line: string): string[] {
 export async function fetchRestaurants(): Promise<Restaurant[]> {
   const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv`;
 
-  const res = await fetch(url, { next: { revalidate: 300 } });
+  const res = await fetch(url, { next: { revalidate: 120 } });
 
   if (!res.ok) {
     throw new Error("Google Sheets 데이터를 불러올 수 없습니다.");
