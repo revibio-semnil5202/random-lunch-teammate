@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, UtensilsCrossed, Utensils } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, Utensils, FolderCog } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -19,6 +19,7 @@ import {
 const NAV_ITEMS = [
   { title: "대시보드", href: "/", icon: LayoutDashboard },
   { title: "회사 근처 식당", href: "/restaurants", icon: UtensilsCrossed },
+  { title: "그룹 관리", href: "/admin/groups", icon: FolderCog },
 ];
 
 export function AppSidebar() {
