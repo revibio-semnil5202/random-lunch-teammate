@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 interface TimePickerProps {
   value: string; // "HH:MM"
   onChange: (value: string) => void;
-  hourRange?: [number, number]; // default [9, 18]
+  hourRange?: [number, number]; // default [0, 23]
   minuteStep?: number; // default 5
 }
 
