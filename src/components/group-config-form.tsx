@@ -83,7 +83,12 @@ export function GroupConfigForm({
 
       {/* 요일 로테이션 */}
       <div className="space-y-3">
-        <Label className="text-sm font-semibold">진행 요일</Label>
+        <div>
+          <Label className="text-sm font-semibold">진행 요일</Label>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            1주차만 설정하면 매주 같은 요일에 진행됩니다. 주차를 추가하면 설정한 요일이 순서대로 반복됩니다.
+          </p>
+        </div>
 
         <div className="space-y-2.5">
           {schedule.map((selectedDay, weekIndex) => (
@@ -171,11 +176,11 @@ export function GroupConfigForm({
         <div>
           <Label className="text-sm font-semibold">매칭 마감 시각</Label>
           <p className="text-xs text-muted-foreground mt-0.5">
-            진행 요일 당일, 이 시간에 매칭 결과가 자동으로 발표됩니다. 점심시간 최소 1시간 전으로 설정해 주세요.
+            진행 요일 당일, 이 시간에 매칭 결과가 자동으로 발표 및 슬랙 채널로 레포팅됩니다. 점심시간 최소 1시간 전으로 설정해 주세요.
           </p>
         </div>
 
-        <TimePicker value={matchDeadlineTime} onChange={setMatchDeadlineTime} />
+        <TimePicker value={matchDeadlineTime} onChange={setMatchDeadlineTime} hourRange={[8, 11]} />
       </div>
 
       {/* 슬랙 채널 바로가기 */}
@@ -218,6 +223,14 @@ export function GroupConfigForm({
           placeholder="https://hooks.slack.com/services/..."
           className="text-sm h-10"
         />
+        <div className="mt-2">
+          <span className="text-xs font-semibold text-muted-foreground">알림 타이밍</span>
+          <ul className="text-xs text-muted-foreground space-y-0.5 mt-1">
+            <li>- 매주 월요일 10:00 — 이번 주 참여 안내</li>
+            <li>- 마감 1시간 전 — 마감 리마인더</li>
+            <li>- 마감 시각 — 매칭 결과 발표</li>
+          </ul>
+        </div>
       </div>
 
       {/* 버튼 */}
