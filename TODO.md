@@ -96,4 +96,15 @@
 ## Phase 4 - 남은 작업
 
 - [x] GitHub Actions cron (월요일 10시 weekly, 마감 1시간 전 reminder)
-- [ ] Zod 입력값 검증
+- [ ] cron-job.org 전환 검토 (GitHub Actions cron 지연이 심할 경우)
+  - **배경**: GitHub Actions cron은 공식적으로 지연/드롭 가능. 30분 간격 설정해도 실제 40~60분 걸릴 수 있음
+  - **대안**: cron-job.org (무료, 1분 단위, 15년+ 운영, 타임아웃 30초, SLA 없지만 장애 보고 거의 없음)
+  - **전환 방법**:
+    1. cron-job.org에 가입 후 cron job 2개 등록:
+       - `POST {APP_URL}/api/cron/match` (30분마다, 평일 KST 08:00~12:30)
+       - `POST {APP_URL}/api/cron/slack-notify?type=reminder` (30분마다, 평일 KST 08:00~12:30)
+       - 두 요청 모두 Header에 `Authorization: Bearer {CRON_SECRET}` 필요
+    2. `.github/workflows/match-cron.yml` 에서 schedule cron 제거 (workflow_dispatch만 남김)
+    3. `.github/workflows/slack-notify-cron.yml` 에서 reminder 관련 schedule cron 제거 (weekly + workflow_dispatch만 남김)
+    4. weekly 알림(매주 월요일 KST 10:00)은 GitHub Actions에 유지 (주 1회라 지연 허용 가능)
+    5. keep-alive 워크플로우는 그대로 유지
