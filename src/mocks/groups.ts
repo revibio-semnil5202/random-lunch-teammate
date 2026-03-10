@@ -1,0 +1,55 @@
+import type { Group } from "@/types";
+
+export const mockGroups: Group[] = [
+  {
+    id: "g1",
+    title: "리비바이오&알렌의서재",
+    lunchDate: "2026-03-11",
+    lunchDateDisplay: "03.11.수",
+    participantCount: 8,
+    participants: [
+      { id: "p1", team: "개발팀", name: "김민수", createdAt: "2026-03-10T09:00:00" },
+      { id: "p2", team: "개발팀", name: "이지은", createdAt: "2026-03-10T09:05:00" },
+      { id: "p3", team: "기획팀", name: "박서연", createdAt: "2026-03-10T09:10:00" },
+      { id: "p4", team: "마케팅팀", name: "최준혁", createdAt: "2026-03-10T09:15:00" },
+      { id: "p5", team: "QA팀", name: "정하늘", createdAt: "2026-03-10T09:20:00" },
+      { id: "p6", team: "인사팀", name: "강예린", createdAt: "2026-03-10T09:25:00" },
+      { id: "p7", team: "광고팀", name: "윤도현", createdAt: "2026-03-10T09:30:00" },
+      { id: "p8", team: "출판팀", name: "한소희", createdAt: "2026-03-10T09:35:00" },
+    ],
+  },
+  {
+    id: "g2",
+    title: "스시히로바&맛있는녀석들",
+    lunchDate: "2026-03-11",
+    lunchDateDisplay: "03.11.수",
+    participantCount: 6,
+    participants: [
+      { id: "p9", team: "총무팀", name: "송민호", createdAt: "2026-03-10T10:00:00" },
+      { id: "p10", team: "개발팀", name: "오세훈", createdAt: "2026-03-10T10:05:00" },
+      { id: "p11", team: "기획팀", name: "임수정", createdAt: "2026-03-10T10:10:00" },
+      { id: "p12", team: "마케팅팀", name: "배수지", createdAt: "2026-03-10T10:15:00" },
+      { id: "p13", team: "QA팀", name: "조인성", createdAt: "2026-03-10T10:20:00" },
+      { id: "p14", team: "광고팀", name: "류승룡", createdAt: "2026-03-10T10:25:00" },
+    ],
+  },
+  {
+    id: "g3",
+    title: "봉추찜닭&할매국수",
+    lunchDate: "2026-03-13",
+    lunchDateDisplay: "03.13.금",
+    participantCount: 10,
+    participants: [
+      { id: "p15", team: "개발팀", name: "나영석", createdAt: "2026-03-10T11:00:00" },
+      { id: "p16", team: "개발팀", name: "신동엽", createdAt: "2026-03-10T11:05:00" },
+      { id: "p17", team: "기획팀", name: "유재석", createdAt: "2026-03-10T11:10:00" },
+      { id: "p18", team: "기획팀", name: "하하", createdAt: "2026-03-10T11:15:00" },
+      { id: "p19", team: "마케팅팀", name: "송지효", createdAt: "2026-03-10T11:20:00" },
+      { id: "p20", team: "인사팀", name: "전소민", createdAt: "2026-03-10T11:25:00" },
+      { id: "p21", team: "총무팀", name: "양세찬", createdAt: "2026-03-10T11:30:00" },
+      { id: "p22", team: "QA팀", name: "김종국", createdAt: "2026-03-10T11:35:00" },
+      { id: "p23", team: "광고팀", name: "이광수", createdAt: "2026-03-10T11:40:00" },
+      { id: "p24", team: "출판팀", name: "지석진", createdAt: "2026-03-10T11:45:00" },
+    ],
+  },
+];
