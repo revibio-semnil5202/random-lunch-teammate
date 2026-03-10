@@ -48,13 +48,15 @@ export async function fetchRestaurants(): Promise<Restaurant[]> {
   // Skip header row
   const dataLines = lines.slice(1);
 
-  return dataLines.map((line) => {
-    const [name, category, mealSupport, naverMapLink] = parseCSVLine(line);
-    return {
-      name: name || "",
-      category: category || "",
-      mealSupport: mealSupport || "",
-      naverMapLink: naverMapLink || "",
-    };
-  });
+  return dataLines
+    .map((line) => {
+      const [name, category, mealSupport, naverMapLink] = parseCSVLine(line);
+      return {
+        name: name || "",
+        category: category || "",
+        mealSupport: mealSupport || "",
+        naverMapLink: naverMapLink || "",
+      };
+    })
+    .filter((r) => r.name);
 }
