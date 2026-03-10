@@ -221,11 +221,21 @@ export function RestaurantList({ restaurants }: RestaurantListProps) {
   );
 }
 
+const CATEGORY_COLORS: Record<string, { badge: string; bar: string }> = {
+  한식: { badge: 'bg-sky-100 text-sky-700', bar: 'bg-sky-400' },
+  중식: { badge: 'bg-rose-100 text-rose-700', bar: 'bg-rose-400' },
+  일식: { badge: 'bg-amber-100 text-amber-700', bar: 'bg-amber-400' },
+  양식: { badge: 'bg-orange-100 text-orange-700', bar: 'bg-orange-400' },
+  기타: { badge: 'bg-gray-100 text-gray-600', bar: 'bg-gray-400' },
+};
+
 function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
+  const colors = CATEGORY_COLORS[restaurant.category] ?? { badge: 'bg-primary/10 text-primary', bar: 'bg-primary' };
+
   return (
-    <div className="group relative overflow-hidden rounded-2xl border p-5 transition-all hover:shadow-lg hover:-translate-y-0.5 bg-gradient-to-br from-primary/5 via-background to-primary/10">
+    <div className="group relative overflow-hidden rounded-2xl border p-5 transition-all hover:shadow-lg hover:-translate-y-0.5 bg-gradient-to-br from-muted/50 via-background to-muted/30">
       {/* 좌측 컬러 바 */}
-      <div className="absolute left-0 top-0 h-full w-1 rounded-l-2xl bg-primary" />
+      <div className={cn("absolute left-0 top-0 h-full w-1 rounded-l-2xl", colors.bar)} />
 
       {/* 상단: 식당명 + 카테고리 뱃지 */}
       <div className="flex items-start justify-between gap-3 mb-4">
@@ -233,7 +243,7 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
           {restaurant.name}
         </h3>
         {restaurant.category && (
-          <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+          <span className={cn("inline-flex items-center gap-1 shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold", colors.badge)}>
             <UtensilsCrossed className="h-3 w-3" />
             {restaurant.category}
           </span>
@@ -242,20 +252,11 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
 
       {/* 하단: 메타 정보 */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          {restaurant.mealSupport && (
-            <div
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold',
-                restaurant.mealSupport === '가능'
-                  ? 'border border-emerald-500 text-emerald-700'
-                  : 'border border-rose-400 text-rose-600',
-              )}
-            >
-              <CreditCard className="h-3 w-3" />
-              식대 {restaurant.mealSupport}
-            </div>
-          )}
+        <div className="flex items-center gap-1.5">
+          <CreditCard className={cn("h-3.5 w-3.5", restaurant.mealSupport === '가능' ? 'text-emerald-600' : 'text-muted-foreground/50')} />
+          <span className={cn("text-xs font-medium", restaurant.mealSupport === '가능' ? 'text-emerald-700' : 'text-muted-foreground')}>
+            {restaurant.mealSupport ? `식대 ${restaurant.mealSupport}` : '식대 정보 없음'}
+          </span>
         </div>
 
         {restaurant.naverMapLink && (
@@ -265,7 +266,7 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-full border border-input bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
-            <svg className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+            <svg className="h-3 w-3 text-[#03C75A]" viewBox="0 0 20 20" fill="currentColor">
               <path d="M13.27 2v11.1L6.73 2H2v16h4.73V6.9L13.27 18H18V2z" />
             </svg>
             네이버 지도
