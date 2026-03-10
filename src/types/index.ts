@@ -20,6 +20,7 @@ export interface GroupConfig {
   maxParticipants: number;
   matchDeadlineTime: string;
   slackChannelUrl?: string;
+  slackWebhookUrl?: string;
   createdAt: string;
 }
 

@@ -22,6 +22,7 @@
     maxParticipants: number;   // 최소 3
     matchDeadlineTime: string; // "11:00"
     slackChannelUrl?: string;
+    slackWebhookUrl?: string;
   }
   ```
 - **반환**: `GroupConfig`
@@ -112,13 +113,50 @@
   2. 중복 이벤트 없으면 lunch_events에 INSERT
   3. 시작일 기준 `(주차 % schedule.length)` 로 현재 로테이션 인덱스 계산
 
+### POST /api/cron/slack-notify
+- **파일**: `src/app/api/cron/slack-notify/route.ts`
+- **설명**: 슬랙 Incoming Webhook을 통한 자동 알림 발송
+- **인증**: `Authorization: Bearer {CRON_SECRET}` 헤더 필수
+- **알림 종류**:
+
+#### 1. 주간 참여 안내 (매주 월요일 10:00 KST)
+- **대상**: `slack_webhook_url`이 설정된 모든 group_configs
+- **메시지**:
+  > 🍽️ 이번 주 팀점 참여자를 모집합니다!
+  > 아래 링크에서 참여 여부를 선택해 주세요.
+  > 👉 {APP_URL}
+
+#### 2. 마감 1시간 전 리마인더 (매칭 당일, match_deadline - 1시간)
+- **대상**: 오늘 매칭 마감인 lunch_events (status = 'recruiting')
+- **메시지**:
+  > ⏰ 오늘 팀점 매칭까지 1시간 남았어요!
+  > 혹시 사정이 생기셨다면 지금 참여 명단에서 이름을 빼주세요.
+  > 👉 {APP_URL}
+
+#### 3. 매칭 결과 발표 (매칭 완료 직후)
+- **대상**: 방금 매칭 완료된 lunch_events
+- **메시지**:
+  > 🎉 팀점 매칭 결과가 나왔습니다!
+  > 누구와 함께하게 되었는지 확인해 보세요.
+  > 👉 {APP_URL}
+
+- **로직**: `type` 쿼리 파라미터로 알림 종류 구분 (`weekly` | `reminder` | `result`)
+
 ## GitHub Actions
 
 ### match-cron.yml
 - **스케줄**: `30 2 * * 1-5` (평일 11:30 KST = UTC 02:30)
-- **동작**: `APP_URL/api/cron/match`에 POST 요청
+- **동작**: `APP_URL/api/cron/match`에 POST 요청 → 완료 후 `slack-notify?type=result` 호출
 - **필요 Secrets**: `APP_URL`, `CRON_SECRET`
 - `workflow_dispatch`로 수동 실행 가능
+
+### slack-notify-cron.yml
+- **주간 참여 안내**: `0 1 * * 1` (월요일 10:00 KST = UTC 01:00)
+  - `APP_URL/api/cron/slack-notify?type=weekly`
+- **마감 리마인더**: `0 1 * * 1-5` (평일 10:00 KST = UTC 01:00)
+  - `APP_URL/api/cron/slack-notify?type=reminder`
+  - 내부에서 match_deadline 기준 1시간 전인 이벤트만 필터
+- **필요 Secrets**: `APP_URL`, `CRON_SECRET`
 
 ### keep-alive.yml
 - **스케줄**: `0 0 1,21 * *` (매월 1일, 21일)

@@ -22,9 +22,10 @@ export function GroupConfigForm({
 }: GroupConfigFormProps) {
   const [title, setTitle] = useState("");
   const [schedule, setSchedule] = useState<DayOfWeek[]>(["수"]);
-  const [maxParticipants, setMaxParticipants] = useState(12);
+  const [maxParticipants, setMaxParticipants] = useState(4);
   const [matchDeadlineTime, setMatchDeadlineTime] = useState("11:00");
   const [slackChannelUrl, setSlackChannelUrl] = useState("");
+  const [slackWebhookUrl, setSlackWebhookUrl] = useState("");
 
   useEffect(() => {
     if (config) {
@@ -33,6 +34,7 @@ export function GroupConfigForm({
       setMaxParticipants(config.maxParticipants);
       setMatchDeadlineTime(config.matchDeadlineTime);
       setSlackChannelUrl(config.slackChannelUrl ?? "");
+      setSlackWebhookUrl(config.slackWebhookUrl ?? "");
     }
   }, [config]);
 
@@ -61,6 +63,7 @@ export function GroupConfigForm({
       maxParticipants,
       matchDeadlineTime,
       slackChannelUrl: slackChannelUrl.trim() || undefined,
+      slackWebhookUrl: slackWebhookUrl.trim() || undefined,
     });
   };
 
@@ -145,25 +148,36 @@ export function GroupConfigForm({
 
       {/* 최대 인원 */}
       <div className="space-y-2">
-        <Label className="text-sm font-semibold">최대 인원</Label>
+        <div>
+          <Label className="text-sm font-semibold">최대 인원</Label>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            최소 인원은 3명으로 고정됩니다.
+          </p>
+        </div>
         <div className="flex items-center gap-3">
           <Input
             type="number"
             min={3}
-            max={50}
+            max={12}
             value={maxParticipants}
-            onChange={(e) =>
-              setMaxParticipants(Math.max(3, Number(e.target.value)))
-            }
-            className="w-24 h-10 text-base"
+            onChange={(e) => {
+              const v = Number(e.target.value);
+              setMaxParticipants(Math.min(12, Math.max(3, v)));
+            }}
+            className="w-24 h-10 text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
-          <span className="text-sm text-muted-foreground">명 (최소 3명)</span>
+          <span className="text-sm text-muted-foreground">명</span>
         </div>
       </div>
 
       {/* 매칭 마감 시각 */}
       <div className="space-y-2">
-        <Label className="text-sm font-semibold">매칭 마감 시각</Label>
+        <div>
+          <Label className="text-sm font-semibold">매칭 마감 시각</Label>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            이 시간에 매칭 결과가 자동으로 발표됩니다.
+          </p>
+        </div>
         <Input
           type="time"
           value={matchDeadlineTime}
@@ -172,18 +186,44 @@ export function GroupConfigForm({
         />
       </div>
 
-      {/* 슬랙 채널 URL */}
+      {/* 슬랙 채널 바로가기 */}
       <div className="space-y-2">
-        <Label className="text-sm font-semibold">
-          슬랙 채널 URL
-          <span className="ml-1 text-xs font-normal text-muted-foreground">
-            (선택)
-          </span>
-        </Label>
+        <div>
+          <Label className="text-sm font-semibold">
+            슬랙 채널 바로가기
+            <span className="ml-1 text-xs font-normal text-muted-foreground">
+              (선택)
+            </span>
+          </Label>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            매칭 결과 페이지에서 슬랙 채널로 이동하는 버튼에 사용됩니다.
+          </p>
+        </div>
         <Input
           value={slackChannelUrl}
           onChange={(e) => setSlackChannelUrl(e.target.value)}
           placeholder="https://slack.com/app_redirect?channel=..."
+          className="text-sm h-10"
+        />
+      </div>
+
+      {/* 슬랙 알림 Webhook */}
+      <div className="space-y-2">
+        <div>
+          <Label className="text-sm font-semibold">
+            슬랙 알림 Webhook
+            <span className="ml-1 text-xs font-normal text-muted-foreground">
+              (선택)
+            </span>
+          </Label>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            참여 안내, 마감 리마인더, 매칭 결과를 자동으로 슬랙에 발송합니다.
+          </p>
+        </div>
+        <Input
+          value={slackWebhookUrl}
+          onChange={(e) => setSlackWebhookUrl(e.target.value)}
+          placeholder="https://hooks.slack.com/services/..."
           className="text-sm h-10"
         />
       </div>

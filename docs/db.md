@@ -37,6 +37,7 @@
 | max_participants | integer | NOT NULL, default 12 | 최대 참여 인원 (최소 3) |
 | match_deadline_time | varchar(5) | NOT NULL, default '11:00' | 매칭 마감 시각 (HH:MM) |
 | slack_channel_url | varchar(500) | nullable | 슬랙 채널 바로가기 URL |
+| slack_webhook_url | varchar(500) | nullable | 슬랙 Incoming Webhook URL (알림 발송용) |
 | created_at | timestamp | NOT NULL, default NOW | 생성일 |
 
 **요일 로테이션 (schedule)**:
