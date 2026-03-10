@@ -1,13 +1,7 @@
 const SERVICE_URL = process.env.APP_URL ?? "https://example.com";
 
-interface SlackBlock {
-  type: string;
-  text?: { type: string; text: string; emoji?: boolean };
-  elements?: { type: string; text: string }[];
-  accessory?: { type: string; text: { type: string; text: string; emoji?: boolean }; url: string; action_id: string };
-}
-
-async function sendSlackMessage(webhookUrl: string, blocks: SlackBlock[]) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function sendSlackMessage(webhookUrl: string, blocks: any[]) {
   const res = await fetch(webhookUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -30,7 +24,7 @@ export async function sendWeeklyNotice(
   participantCount: number,
   groupId: string
 ) {
-  const blocks: SlackBlock[] = [
+  const blocks = [
     {
       type: "section",
       text: {
@@ -42,22 +36,24 @@ export async function sendWeeklyNotice(
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `이번 주 *${lunchDay}* 팀점이 진행됩니다.\n현재 *${participantCount}명* 참여 중입니다.\n\n아래 링크에서 참여 여부를 선택해 주세요.`,
+        text: `이번 주 *${lunchDay}* 팀점이 진행됩니다.\n현재 *${participantCount}명* 참여 중입니다.\n\n아래 버튼에서 참여 여부를 선택해 주세요.`,
       },
-      accessory: {
-        type: "button",
-        text: { type: "plain_text", text: "참여하기", emoji: true },
-        url: `${SERVICE_URL}/groups/${groupId}`,
-        action_id: "join_group",
-      },
+    },
+    {
+      type: "actions",
+      elements: [
+        {
+          type: "button",
+          text: { type: "plain_text", text: "참여하기", emoji: true },
+          url: `${SERVICE_URL}/groups/${groupId}`,
+          action_id: "join_group",
+        },
+      ],
     },
     {
       type: "context",
       elements: [
-        {
-          type: "mrkdwn",
-          text: "랜덤 점심 팀메이트",
-        },
+        { type: "mrkdwn", text: "랜덤 점심 팀메이트" },
       ],
     },
   ];
@@ -75,7 +71,7 @@ export async function sendDeadlineReminder(
   participantCount: number,
   groupId: string
 ) {
-  const blocks: SlackBlock[] = [
+  const blocks = [
     {
       type: "section",
       text: {
@@ -89,20 +85,22 @@ export async function sendDeadlineReminder(
         type: "mrkdwn",
         text: `오늘 *${deadlineTime}*에 매칭이 마감됩니다.\n현재 *${participantCount}명* 참여 중입니다.\n\n혹시 사정이 생기셨다면 지금 참여 명단에서 이름을 빼주세요.`,
       },
-      accessory: {
-        type: "button",
-        text: { type: "plain_text", text: "확인하기", emoji: true },
-        url: `${SERVICE_URL}/groups/${groupId}`,
-        action_id: "check_group",
-      },
+    },
+    {
+      type: "actions",
+      elements: [
+        {
+          type: "button",
+          text: { type: "plain_text", text: "확인하기", emoji: true },
+          url: `${SERVICE_URL}/groups/${groupId}`,
+          action_id: "check_group",
+        },
+      ],
     },
     {
       type: "context",
       elements: [
-        {
-          type: "mrkdwn",
-          text: "랜덤 점심 팀메이트",
-        },
+        { type: "mrkdwn", text: "랜덤 점심 팀메이트" },
       ],
     },
   ];
@@ -120,7 +118,7 @@ export async function sendMatchResult(
   totalMembers: number,
   groupId: string
 ) {
-  const blocks: SlackBlock[] = [
+  const blocks = [
     {
       type: "section",
       text: {
@@ -134,20 +132,22 @@ export async function sendMatchResult(
         type: "mrkdwn",
         text: `총 *${totalMembers}명*이 *${groupCount}개 조*로 매칭되었습니다.\n\n누구와 함께하게 되었는지 확인해 보세요.`,
       },
-      accessory: {
-        type: "button",
-        text: { type: "plain_text", text: "결과 보기", emoji: true },
-        url: `${SERVICE_URL}/groups/${groupId}`,
-        action_id: "view_result",
-      },
+    },
+    {
+      type: "actions",
+      elements: [
+        {
+          type: "button",
+          text: { type: "plain_text", text: "결과 보기", emoji: true },
+          url: `${SERVICE_URL}/groups/${groupId}`,
+          action_id: "view_result",
+        },
+      ],
     },
     {
       type: "context",
       elements: [
-        {
-          type: "mrkdwn",
-          text: "랜덤 점심 팀메이트",
-        },
+        { type: "mrkdwn", text: "랜덤 점심 팀메이트" },
       ],
     },
   ];
