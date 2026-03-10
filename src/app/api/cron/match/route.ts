@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { db } from "@/db";
+import { lunchEvents } from "@/db/schema";
+import { eq, and, lte } from "drizzle-orm";
 import { createRandomMatch } from "@/actions/match";
 
 export async function POST(request: Request) {
@@ -8,24 +11,40 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // TODO: Phase 2 - Supabase 연동 시 아래로 교체
-  // 1. groups 테이블에서 status="recruiting" AND match_deadline <= now() 조회
-  // 2. 각 그룹의 참여자 목록 조회 (group_members JOIN members)
-  // 3. createMatch(participants, { maxGroupSize: group.max_group_size }) 실행
-  // 4. 결과를 match_results 테이블에 저장
-  // 5. groups.status를 "matched"로 업데이트
+  const now = new Date();
 
-  const result = await createRandomMatch();
-
-  if (!result.success) {
-    return NextResponse.json(
-      { error: result.message },
-      { status: 400 }
+  const overdueEvents = await db
+    .select({ id: lunchEvents.id })
+    .from(lunchEvents)
+    .where(
+      and(
+        eq(lunchEvents.status, "recruiting"),
+        lte(lunchEvents.matchDeadline, now)
+      )
     );
+
+  if (overdueEvents.length === 0) {
+    return NextResponse.json({ message: "처리할 이벤트가 없습니다.", processed: 0 });
   }
 
+  const results = await Promise.allSettled(
+    overdueEvents.map((event) => createRandomMatch(event.id.toString()))
+  );
+
+  const summary = results.map((result, i) => {
+    const eventId = overdueEvents[i].id;
+    if (result.status === "fulfilled") {
+      return { eventId, success: result.value.success, message: result.value.message };
+    }
+    return { eventId, success: false, message: String(result.reason) };
+  });
+
+  const succeeded = summary.filter((s) => s.success).length;
+  const failed = summary.filter((s) => !s.success).length;
+
   return NextResponse.json({
-    message: "매칭이 완료되었습니다.",
-    groups: result.groups,
+    message: `매칭 완료: 성공 ${succeeded}건, 실패 ${failed}건`,
+    processed: overdueEvents.length,
+    summary,
   });
 }

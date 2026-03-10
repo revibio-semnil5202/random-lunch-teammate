@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { groupConfigs, lunchEvents, eventParticipants } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, isNotNull } from "drizzle-orm";
 import { sendWeeklyNotice, sendDeadlineReminder } from "@/lib/slack";
 
 /**
@@ -28,16 +28,10 @@ export async function POST(request: Request) {
   }
 
   // webhook URL이 설정된 그룹 설정 조회
-  const configs = await db
+  const activeConfigs = await db
     .select()
     .from(groupConfigs)
-    .where(
-      // slackWebhookUrl이 NULL이 아닌 것만
-      // drizzle-orm에서 isNotNull 사용
-      eq(groupConfigs.slackWebhookUrl, groupConfigs.slackWebhookUrl)
-    );
-
-  const activeConfigs = configs.filter((c) => c.slackWebhookUrl);
+    .where(isNotNull(groupConfigs.slackWebhookUrl));
 
   if (activeConfigs.length === 0) {
     return NextResponse.json({

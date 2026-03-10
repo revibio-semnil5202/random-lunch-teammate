@@ -1,6 +1,9 @@
-import { mockGroupConfigs } from "@/mocks/group-configs";
+export const dynamic = "force-dynamic";
+
+import { getGroupConfigs } from "@/actions/admin";
 import { GroupManagement } from "@/components/group-management";
 
-export default function AdminGroupsPage() {
-  return <GroupManagement initialConfigs={mockGroupConfigs} />;
+export default async function AdminGroupsPage() {
+  const configs = await getGroupConfigs();
+  return <GroupManagement initialConfigs={configs} />;
 }
