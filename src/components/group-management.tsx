@@ -25,7 +25,7 @@ interface GroupManagementProps {
 
 export function GroupManagement({ initialConfigs }: GroupManagementProps) {
   const router = useRouter();
-  const [configs] = useState<GroupConfig[]>(initialConfigs);
+  const configs = initialConfigs;
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<GroupConfig | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<GroupConfig | null>(null);
