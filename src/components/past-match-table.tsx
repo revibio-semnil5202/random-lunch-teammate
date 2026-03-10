@@ -12,7 +12,7 @@ export function PastMatchTable({ groups }: PastMatchTableProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Trophy className="h-5 w-5 text-amber-500" />
+        <Trophy className="h-5 w-5 text-emerald-500" />
         <h2 className="text-lg font-bold">지난 팀점 기록</h2>
       </div>
 

@@ -32,11 +32,11 @@ export function MatchResult({ group }: MatchResultProps) {
           대시보드
         </Link>
 
-        <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-amber-50 via-background to-amber-50/50 p-6">
-          <div className="absolute left-0 top-0 h-full w-1 bg-amber-500 rounded-l-2xl" />
+        <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-emerald-50 via-background to-emerald-50/50 p-6">
+          <div className="absolute left-0 top-0 h-full w-1 bg-emerald-500 rounded-l-2xl" />
 
           <div className="flex flex-col gap-2 mb-3 md:flex-row md:items-start md:justify-between md:gap-3">
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-700 shrink-0 self-start md:order-2">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700 shrink-0 self-start md:order-2">
               <Trophy className="h-3.5 w-3.5" />
               매칭 완료
             </span>
@@ -46,8 +46,8 @@ export function MatchResult({ group }: MatchResultProps) {
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-100">
-                  <Users className="h-3.5 w-3.5 text-amber-600" />
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100">
+                  <Users className="h-3.5 w-3.5 text-emerald-600" />
                 </div>
                 <span className="text-sm font-semibold">
                   {group.participants.length}명 참여
@@ -55,8 +55,8 @@ export function MatchResult({ group }: MatchResultProps) {
               </div>
               <div className="h-4 w-px bg-border" />
               <div className="flex items-center gap-1.5">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-100">
-                  <Calendar className="h-3.5 w-3.5 text-amber-600" />
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100">
+                  <Calendar className="h-3.5 w-3.5 text-emerald-600" />
                 </div>
                 <span className="text-sm font-medium text-muted-foreground">
                   {group.lunchDateDisplay}
@@ -64,8 +64,8 @@ export function MatchResult({ group }: MatchResultProps) {
               </div>
               <div className="h-4 w-px bg-border" />
               <div className="flex items-center gap-1.5">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-100">
-                  <Shuffle className="h-3.5 w-3.5 text-amber-600" />
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100">
+                  <Shuffle className="h-3.5 w-3.5 text-emerald-600" />
                 </div>
                 <span className="text-sm font-medium text-muted-foreground">
                   {matchResult.length}개 조
@@ -97,14 +97,14 @@ export function MatchResult({ group }: MatchResultProps) {
             className="rounded-2xl border bg-card overflow-hidden"
           >
             {/* 조 헤더 */}
-            <div className="flex items-center justify-between bg-gradient-to-r from-amber-50 to-transparent px-5 py-3 border-b">
+            <div className="flex items-center justify-between bg-gradient-to-r from-emerald-50 to-transparent px-5 py-3 border-b">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 text-white text-sm font-bold">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-white text-sm font-bold">
                   {matchGroup.groupIndex}
                 </div>
                 <span className="font-semibold">{matchGroup.groupIndex}조</span>
               </div>
-              <Badge className="bg-amber-100 text-amber-700 border-0">
+              <Badge className="bg-emerald-100 text-emerald-700 border-0">
                 {matchGroup.members.length}명
               </Badge>
             </div>

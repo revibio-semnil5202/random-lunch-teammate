@@ -18,7 +18,7 @@ export function GroupCard({ group }: GroupCardProps) {
         className={cn(
           "group relative overflow-hidden rounded-2xl border p-5 transition-all hover:shadow-lg hover:-translate-y-0.5",
           matched
-            ? "bg-gradient-to-br from-amber-50 via-background to-amber-50/50"
+            ? "bg-gradient-to-br from-emerald-50 via-background to-emerald-50/50"
             : "bg-gradient-to-br from-primary/5 via-background to-primary/10"
         )}
       >
@@ -26,7 +26,7 @@ export function GroupCard({ group }: GroupCardProps) {
         <div
           className={cn(
             "absolute left-0 top-0 h-full w-1 rounded-l-2xl",
-            matched ? "bg-amber-500" : "bg-primary"
+            matched ? "bg-emerald-500" : "bg-primary"
           )}
         />
 
@@ -37,7 +37,7 @@ export function GroupCard({ group }: GroupCardProps) {
           </h3>
           <div className="flex items-center gap-1.5 shrink-0">
             {matched ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
                 <Trophy className="h-3 w-3" />
                 결과보기
               </span>
@@ -57,13 +57,13 @@ export function GroupCard({ group }: GroupCardProps) {
             <div
               className={cn(
                 "flex h-7 w-7 items-center justify-center rounded-full",
-                matched ? "bg-amber-100" : "bg-primary/10"
+                matched ? "bg-emerald-100" : "bg-primary/10"
               )}
             >
               <Users
                 className={cn(
                   "h-3.5 w-3.5",
-                  matched ? "text-amber-600" : "text-primary"
+                  matched ? "text-emerald-600" : "text-primary"
                 )}
               />
             </div>
@@ -78,13 +78,13 @@ export function GroupCard({ group }: GroupCardProps) {
             <div
               className={cn(
                 "flex h-7 w-7 items-center justify-center rounded-full",
-                matched ? "bg-amber-100" : "bg-primary/10"
+                matched ? "bg-emerald-100" : "bg-primary/10"
               )}
             >
               <Calendar
                 className={cn(
                   "h-3.5 w-3.5",
-                  matched ? "text-amber-600" : "text-primary"
+                  matched ? "text-emerald-600" : "text-primary"
                 )}
               />
             </div>

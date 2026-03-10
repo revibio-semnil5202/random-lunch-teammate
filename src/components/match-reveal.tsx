@@ -28,7 +28,7 @@ function fireConfetti() {
     decay: 0.94,
     startVelocity: 50,
     scalar: 1.3,
-    colors: ["#f59e0b", "#fbbf24", "#fcd34d", "#3b82f6", "#60a5fa", "#f472b6"],
+    colors: ["#10b981", "#34d399", "#6ee7b7", "#3b82f6", "#60a5fa", "#a78bfa"],
   };
 
   // 1차
@@ -138,11 +138,11 @@ export function MatchReveal({ group, alreadySeen }: MatchRevealProps) {
         {/* 펄스 링 + 아이콘 */}
         <div className="relative flex items-center justify-center">
           {/* 바깥 펄스 링 */}
-          <div className="absolute h-32 w-32 animate-ping rounded-full bg-amber-200/30 [animation-duration:1.5s]" />
-          <div className="absolute h-24 w-24 animate-ping rounded-full bg-amber-300/40 [animation-duration:1.5s] [animation-delay:0.3s]" />
+          <div className="absolute h-32 w-32 animate-ping rounded-full bg-emerald-200/30 [animation-duration:1.5s]" />
+          <div className="absolute h-24 w-24 animate-ping rounded-full bg-emerald-300/40 [animation-duration:1.5s] [animation-delay:0.3s]" />
 
           {/* 중앙 heartbeat 아이콘 */}
-          <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-500/30 animate-heartbeat">
+          <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/30 animate-heartbeat">
             <Shuffle className="h-8 w-8 text-white" />
           </div>
         </div>
@@ -160,7 +160,7 @@ export function MatchReveal({ group, alreadySeen }: MatchRevealProps) {
         {/* 프로그레스 바 */}
         <div className="w-48 overflow-hidden rounded-full bg-muted h-1.5">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-[width] duration-100 ease-linear"
+            className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-[width] duration-100 ease-linear"
             style={{ width: `${progress * 100}%` }}
           />
         </div>
