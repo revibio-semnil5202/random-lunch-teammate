@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "랜덤 점심 팀메이트",
   description: "사내 점심 랜덤 매칭 서비스",
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({
