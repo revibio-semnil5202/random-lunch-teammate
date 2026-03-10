@@ -1,0 +1,36 @@
+name: Slack Notify
+
+on:
+  schedule:
+    # 매주 월요일 KST 10:00 = UTC 01:00 → 주간 참여 안내 + 이벤트 자동 생성
+    - cron: "0 1 * * 1"
+  workflow_dispatch:
+    inputs:
+      type:
+        description: "알림 유형 (weekly | reminder)"
+        required: true
+        default: "weekly"
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack notification
+        run: |
+          TYPE="${{ github.event.inputs.type || 'weekly' }}"
+
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.APP_URL }}/api/cron/slack-notify?type=${TYPE}" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+
+          http_code=$(echo "$response" | tail -1)
+          body=$(echo "$response" | head -n -1)
+
+          echo "Status: $http_code"
+          echo "Response: $body"
+
+          if [ "$http_code" -ne 200 ]; then
+            echo "::error::Slack notify failed with status $http_code"
+            exit 1
+          fi

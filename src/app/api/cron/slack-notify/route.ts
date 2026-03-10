@@ -3,6 +3,8 @@ import { db } from "@/db";
 import { groupConfigs, lunchEvents, eventParticipants } from "@/db/schema";
 import { eq, and, isNotNull } from "drizzle-orm";
 import { sendWeeklyNotice, sendDeadlineReminder } from "@/lib/slack";
+import { ensureThisWeekEvent } from "@/actions/admin";
+import type { DayOfWeek } from "@/types";
 
 /**
  * 슬랙 알림 발송 API
@@ -24,6 +26,16 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "type 파라미터가 필요합니다. (weekly | reminder)" },
       { status: 400 }
+    );
+  }
+
+  // weekly 알림 시 이번 주 이벤트 자동 생성
+  if (type === "weekly") {
+    const allConfigs = await db.select().from(groupConfigs);
+    await Promise.allSettled(
+      allConfigs.map((c) =>
+        ensureThisWeekEvent(c.id, c.schedule as DayOfWeek[], c.matchDeadlineTime)
+      )
     );
   }
 
