@@ -9,7 +9,7 @@ import {
   members,
   matchResults,
 } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { createMatch } from "@/lib/match";
 import { sendMatchResult } from "@/lib/slack";
 
@@ -109,5 +109,47 @@ export async function createRandomMatch(eventId: string): Promise<{
     }
   }
 
+  // 과거 기록 10개 초과 시 오래된 이벤트 자동 삭제
+  await cleanupOldEvents();
+
   return { success: true, groups: savedGroups };
+}
+
+const PAST_EVENTS_LIMIT = 10;
+
+async function cleanupOldEvents() {
+  try {
+    // 최근 매칭 완료된 이벤트 ID 10개 조회
+    const recentEvents = await db
+      .select({ id: lunchEvents.id })
+      .from(lunchEvents)
+      .where(eq(lunchEvents.status, "matched"))
+      .orderBy(desc(lunchEvents.lunchDate))
+      .limit(PAST_EVENTS_LIMIT);
+
+    if (recentEvents.length < PAST_EVENTS_LIMIT) return;
+
+    const keepIds = recentEvents.map((e) => e.id);
+
+    // 보존 대상이 아닌 오래된 matched 이벤트 조회
+    const oldEvents = await db
+      .select({ id: lunchEvents.id })
+      .from(lunchEvents)
+      .where(eq(lunchEvents.status, "matched"));
+
+    const deleteIds = oldEvents
+      .map((e) => e.id)
+      .filter((id) => !keepIds.includes(id));
+
+    if (deleteIds.length === 0) return;
+
+    // 관련 데이터 삭제 (matchResults → eventParticipants → lunchEvents)
+    for (const id of deleteIds) {
+      await db.delete(matchResults).where(eq(matchResults.eventId, id));
+      await db.delete(eventParticipants).where(eq(eventParticipants.eventId, id));
+      await db.delete(lunchEvents).where(eq(lunchEvents.id, id));
+    }
+  } catch (e) {
+    console.error("과거 기록 정리 실패:", e);
+  }
 }
