@@ -4,7 +4,7 @@ export interface Restaurant {
   name: string;
   category: string;
   mealSupport: string;
-  link: string;
+  naverMapLink: string;
 }
 
 function parseCSVLine(line: string): string[] {
@@ -48,12 +48,12 @@ export async function fetchRestaurants(): Promise<Restaurant[]> {
   const dataLines = lines.slice(1);
 
   return dataLines.map((line) => {
-    const [name, category, mealSupport, link] = parseCSVLine(line);
+    const [name, category, mealSupport, naverMapLink] = parseCSVLine(line);
     return {
       name: name || "",
       category: category || "",
       mealSupport: mealSupport || "",
-      link: link || "",
+      naverMapLink: naverMapLink || "",
     };
   });
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarLayout } from "@/components/sidebar-layout";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const geistMono = Geist_Mono({
@@ -33,6 +34,12 @@ export default function RootLayout({
         <TooltipProvider>
           <SidebarLayout>{children}</SidebarLayout>
         </TooltipProvider>
+        <div className="hidden md:block">
+          <Toaster position="top-center" />
+        </div>
+        <div className="md:hidden">
+          <Toaster position="bottom-center" />
+        </div>
       </body>
     </html>
   );
