@@ -5,6 +5,11 @@ export interface Participant {
   createdAt: string;
 }
 
+export interface MatchGroup {
+  groupIndex: number;
+  members: Participant[];
+}
+
 export interface Group {
   id: string;
   title: string;
@@ -12,4 +17,7 @@ export interface Group {
   lunchDateDisplay: string;
   participantCount: number;
   participants: Participant[];
+  status: "recruiting" | "matched";
+  matchDeadline: string;
+  matchResult?: MatchGroup[];
 }

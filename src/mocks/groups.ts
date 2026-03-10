@@ -7,6 +7,8 @@ export const mockGroups: Group[] = [
     lunchDate: "2026-03-11",
     lunchDateDisplay: "03.11.수",
     participantCount: 8,
+    status: "matched",
+    matchDeadline: "2026-03-11T11:00:00",
     participants: [
       { id: "p1", team: "개발팀", name: "김민수", createdAt: "2026-03-10T09:00:00" },
       { id: "p2", team: "개발팀", name: "이지은", createdAt: "2026-03-10T09:05:00" },
@@ -17,6 +19,26 @@ export const mockGroups: Group[] = [
       { id: "p7", team: "광고팀", name: "윤도현", createdAt: "2026-03-10T09:30:00" },
       { id: "p8", team: "출판팀", name: "한소희", createdAt: "2026-03-10T09:35:00" },
     ],
+    matchResult: [
+      {
+        groupIndex: 1,
+        members: [
+          { id: "p1", team: "개발팀", name: "김민수", createdAt: "2026-03-10T09:00:00" },
+          { id: "p3", team: "기획팀", name: "박서연", createdAt: "2026-03-10T09:10:00" },
+          { id: "p6", team: "인사팀", name: "강예린", createdAt: "2026-03-10T09:25:00" },
+          { id: "p7", team: "광고팀", name: "윤도현", createdAt: "2026-03-10T09:30:00" },
+        ],
+      },
+      {
+        groupIndex: 2,
+        members: [
+          { id: "p2", team: "개발팀", name: "이지은", createdAt: "2026-03-10T09:05:00" },
+          { id: "p4", team: "마케팅팀", name: "최준혁", createdAt: "2026-03-10T09:15:00" },
+          { id: "p5", team: "QA팀", name: "정하늘", createdAt: "2026-03-10T09:20:00" },
+          { id: "p8", team: "출판팀", name: "한소희", createdAt: "2026-03-10T09:35:00" },
+        ],
+      },
+    ],
   },
   {
     id: "g2",
@@ -24,6 +46,8 @@ export const mockGroups: Group[] = [
     lunchDate: "2026-03-11",
     lunchDateDisplay: "03.11.수",
     participantCount: 6,
+    status: "recruiting",
+    matchDeadline: "2026-03-11T11:00:00",
     participants: [
       { id: "p9", team: "총무팀", name: "송민호", createdAt: "2026-03-10T10:00:00" },
       { id: "p10", team: "개발팀", name: "오세훈", createdAt: "2026-03-10T10:05:00" },
@@ -39,6 +63,8 @@ export const mockGroups: Group[] = [
     lunchDate: "2026-03-13",
     lunchDateDisplay: "03.13.금",
     participantCount: 10,
+    status: "recruiting",
+    matchDeadline: "2026-03-13T11:00:00",
     participants: [
       { id: "p15", team: "개발팀", name: "나영석", createdAt: "2026-03-10T11:00:00" },
       { id: "p16", team: "개발팀", name: "신동엽", createdAt: "2026-03-10T11:05:00" },

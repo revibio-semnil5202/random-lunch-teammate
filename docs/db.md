@@ -28,8 +28,10 @@
 ## 진화 계획 (Phase 2)
 
 ### groups 테이블 확장
-- `name` varchar(100) NOT NULL 추가 — 그룹 타이틀 (e.g., "리비바이오&알렌의서재")
+- `name` varchar(100) NOT NULL 추가 — 그룹 타이틀
 - `lunch_date` date NOT NULL 추가 — 팀점 진행일
+- `match_deadline` timestamp NOT NULL 추가 — 매칭 마감 시각 (ex: 11:00)
+- `status` varchar(20) NOT NULL default 'recruiting' — 그룹 상태 ("recruiting" | "matched")
 
 ### members 테이블 변경
 - `department` NOT NULL로 변경 — 소속 팀 필수값
@@ -40,9 +42,14 @@
 - `created_at` timestamp 컬럼 추가
 - FK에 ON DELETE CASCADE 추가
 
-## 참여자 데이터 구조
+### match_results 테이블 (신규)
+- `id` serial PK
+- `group_id` integer NOT NULL, FK → groups.id
+- `match_group_index` integer NOT NULL — 몇 번째 조인지 (0, 1, 2...)
+- `member_id` integer NOT NULL, FK → members.id
+- `created_at` timestamp default NOW
 
-`string[]` 대신 **구조화된 객체** 채택:
+## 참여자 데이터 구조
 
 ```typescript
 interface Participant {
@@ -53,15 +60,19 @@ interface Participant {
 }
 ```
 
-### 채택 이유
-- 팀별 그룹핑 시 문자열 파싱 불필요
-- 필드별 검증 가능 (데이터 무결성)
-- id, createdAt 등 확장 용이
+## 매칭 결과 데이터 구조
+
+```typescript
+interface MatchGroup {
+  groupIndex: number;    // 조 번호 (1, 2, 3...)
+  members: Participant[];
+}
+```
 
 ## 소속 팀 관리
 
-DB ENUM 대신 TypeScript 상수 배열로 관리 (`src/constants/teams.ts`):
+TypeScript 상수 배열 (`src/constants/teams.ts`):
 
 ```typescript
-export const TEAMS = ["기획팀", "마케팅팀", "광고팀", "출판팀", "개발팀", "인사팀", "총무팀", "QA팀"] as const;
+export const TEAMS = ["기획팀", "마케팅팀", "광고팀", "출판팀", "개발팀", "디자인팀", "인사팀", "총무팀", "QA팀"] as const;
 ```

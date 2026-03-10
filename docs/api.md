@@ -30,7 +30,7 @@
   }
   ```
 - **반환**: `Participant`
-- **검증**: team 유효성, name 길이
+- **검증**: team 유효성, name 길이, 그룹 상태가 "recruiting"인지 확인
 - **현재**: 클라이언트 state에서 mock 처리 (800ms delay)
 
 ### deleteParticipant
@@ -46,9 +46,19 @@
 - **반환**: `{ success: boolean }`
 - **현재**: 클라이언트 state에서 mock 처리 (800ms delay)
 
+### executeMatch (Phase 1.5)
+- **파일**: `src/actions/match.ts`
+- **설명**: 참여자를 랜덤으로 점심 조에 배정
+- **파라미터**: `groupId: string`
+- **로직**: Fisher-Yates 셔플 → groupSize(기본 4명) 단위로 분할
+- **반환**: `MatchGroup[]` (각 조의 참여자 배열)
+- **트리거**: matchDeadline 도달 시 (현재는 mock 데이터로 처리)
+- **현재**: 기존 `src/actions/match.ts`의 `createRandomMatch` 함수 재활용
+
 ## Phase 2 연동 계획
 
 1. Drizzle ORM 쿼리로 Server Actions 구현
 2. Zod로 입력값 검증
 3. revalidatePath로 캐시 무효화
 4. 에러 핸들링 표준화
+5. matchDeadline 기반 자동 매칭 (cron or edge function)
