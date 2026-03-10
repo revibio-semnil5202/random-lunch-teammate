@@ -93,6 +93,7 @@ export async function createRandomMatch(eventId: string): Promise<{
   revalidatePath(`/groups/${eventId}`);
 
   // 슬랙 매칭 결과 알림
+  console.log("[Match] slackWebhookUrl:", event.slackWebhookUrl ?? "(없음)");
   if (event.slackWebhookUrl) {
     const totalMembers = participantRows.length;
     const groupCount = savedGroups.length;
