@@ -1,0 +1,123 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { db } from "@/db";
+import { members, lunchEvents, eventParticipants, groupConfigs } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
+import type { Participant } from "@/types";
+
+export async function registerParticipant({
+  eventId,
+  team,
+  name,
+}: {
+  eventId: string;
+  team: string;
+  name: string;
+}): Promise<{ success: true; participant: Participant } | { success: false; error: string }> {
+  const trimmedName = name.trim();
+
+  if (trimmedName.length > 10) {
+    return { success: false, error: "이름은 최대 10자까지 입력할 수 있습니다." };
+  }
+
+  const eventIdNum = parseInt(eventId, 10);
+
+  const eventRows = await db
+    .select({
+      id: lunchEvents.id,
+      status: lunchEvents.status,
+      maxParticipants: groupConfigs.maxParticipants,
+    })
+    .from(lunchEvents)
+    .innerJoin(groupConfigs, eq(lunchEvents.groupConfigId, groupConfigs.id))
+    .where(eq(lunchEvents.id, eventIdNum))
+    .limit(1);
+
+  if (eventRows.length === 0) {
+    return { success: false, error: "이벤트를 찾을 수 없습니다." };
+  }
+
+  const event = eventRows[0];
+
+  if (event.status !== "recruiting") {
+    return { success: false, error: "현재 참여 신청을 받지 않는 이벤트입니다." };
+  }
+
+  // 현재 참여자 목록 조회 (중복 및 정원 확인)
+  const currentParticipants = await db
+    .select({
+      memberId: eventParticipants.memberId,
+      name: members.name,
+      department: members.department,
+    })
+    .from(eventParticipants)
+    .innerJoin(members, eq(eventParticipants.memberId, members.id))
+    .where(eq(eventParticipants.eventId, eventIdNum));
+
+  if (currentParticipants.length >= event.maxParticipants) {
+    return { success: false, error: "참여 인원이 가득 찼습니다." };
+  }
+
+  const duplicate = currentParticipants.some(
+    (p) => p.department === team && p.name === trimmedName
+  );
+  if (duplicate) {
+    return { success: false, error: "이미 동일한 팀/이름으로 참여 신청이 되어 있습니다." };
+  }
+
+  // members 테이블에 INSERT
+  const [newMember] = await db
+    .insert(members)
+    .values({ name: trimmedName, department: team })
+    .returning();
+
+  // event_participants 테이블에 INSERT
+  const [newEp] = await db
+    .insert(eventParticipants)
+    .values({ eventId: eventIdNum, memberId: newMember.id })
+    .returning();
+
+  revalidatePath("/");
+  revalidatePath(`/groups/${eventId}`);
+
+  return {
+    success: true,
+    participant: {
+      id: newMember.id.toString(),
+      team: newMember.department ?? "",
+      name: newMember.name,
+      createdAt: newEp.createdAt.toISOString(),
+    },
+  };
+}
+
+export async function deleteParticipant({
+  eventId,
+  participantId,
+}: {
+  eventId: string;
+  participantId: string;
+}): Promise<{ success: boolean; error?: string }> {
+  const eventIdNum = parseInt(eventId, 10);
+  const memberIdNum = parseInt(participantId, 10);
+
+  const deleted = await db
+    .delete(eventParticipants)
+    .where(
+      and(
+        eq(eventParticipants.eventId, eventIdNum),
+        eq(eventParticipants.memberId, memberIdNum)
+      )
+    )
+    .returning();
+
+  if (deleted.length === 0) {
+    return { success: false, error: "참여자를 찾을 수 없습니다." };
+  }
+
+  revalidatePath("/");
+  revalidatePath(`/groups/${eventId}`);
+
+  return { success: true };
+}
