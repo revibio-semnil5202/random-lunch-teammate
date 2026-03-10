@@ -1,0 +1,29 @@
+name: Random Lunch Match
+
+on:
+  schedule:
+    # 평일 11:30 KST (UTC 02:30)
+    - cron: "30 2 * * 1-5"
+  workflow_dispatch: # 수동 실행 가능
+
+jobs:
+  trigger-match:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger match API
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.APP_URL }}/api/cron/match" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+
+          http_code=$(echo "$response" | tail -1)
+          body=$(echo "$response" | head -n -1)
+
+          echo "Status: $http_code"
+          echo "Response: $body"
+
+          if [ "$http_code" -ne 200 ]; then
+            echo "::error::Match API failed with status $http_code"
+            exit 1
+          fi

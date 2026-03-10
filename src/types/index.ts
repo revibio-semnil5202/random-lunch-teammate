@@ -20,4 +20,5 @@ export interface Group {
   status: "recruiting" | "matched";
   matchDeadline: string;
   matchResult?: MatchGroup[];
+  slackChannelUrl?: string;
 }

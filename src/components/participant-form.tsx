@@ -1,11 +1,12 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { TEAMS } from "@/constants/teams";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Pencil, Check, X } from "lucide-react";
 
 interface ParticipantFormProps {
   selectedTeam: string;
@@ -26,17 +27,59 @@ export function ParticipantForm({
   isDisabled,
   isDuplicate,
 }: ParticipantFormProps) {
+  const [isCustomMode, setIsCustomMode] = useState(false);
+  const [customTeam, setCustomTeam] = useState("");
+  const customInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isCustomMode) {
+      customInputRef.current?.focus();
+    }
+  }, [isCustomMode]);
+
+  const handleCustomToggle = () => {
+    setIsCustomMode(true);
+    setCustomTeam("");
+  };
+
+  const handleCustomConfirm = () => {
+    const trimmed = customTeam.trim();
+    if (!trimmed) return;
+    onTeamChange(trimmed);
+    setIsCustomMode(false);
+  };
+
+  const handleCustomCancel = () => {
+    setIsCustomMode(false);
+    setCustomTeam("");
+  };
+
+  const handleCustomKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleCustomConfirm();
+    } else if (e.key === "Escape") {
+      handleCustomCancel();
+    }
+  };
+
+  const isCustomSelected =
+    selectedTeam !== "" && !TEAMS.includes(selectedTeam as (typeof TEAMS)[number]);
+
   return (
     <div className="mx-auto max-w-[800px] space-y-6">
       {/* 소속 팀 선택 */}
       <div className="space-y-3">
         <Label className="text-sm font-semibold">소속 팀</Label>
-        <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2">
+        <div className="flex flex-wrap gap-2">
           {TEAMS.map((team) => (
             <button
               key={team}
               type="button"
-              onClick={() => onTeamChange(team)}
+              onClick={() => {
+                onTeamChange(team);
+                setIsCustomMode(false);
+              }}
               className={cn(
                 "cursor-pointer rounded-lg border px-3 py-2.5 text-sm font-medium transition-all",
                 selectedTeam === team
@@ -47,6 +90,50 @@ export function ParticipantForm({
               {team}
             </button>
           ))}
+
+          {/* 직접 입력 버튼 / 입력 모드 */}
+          {isCustomMode ? (
+            <div className="flex items-center gap-1.5">
+              <Input
+                ref={customInputRef}
+                value={customTeam}
+                onChange={(e) => setCustomTeam(e.target.value)}
+                onKeyDown={handleCustomKeyDown}
+                placeholder="팀 이름 입력"
+                maxLength={10}
+                className="h-[42px] w-32 text-sm"
+              />
+              <button
+                type="button"
+                onClick={handleCustomConfirm}
+                disabled={!customTeam.trim()}
+                className="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded-lg border border-primary bg-primary text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Check className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={handleCustomCancel}
+                className="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded-lg border border-input bg-background text-muted-foreground transition-all hover:bg-accent"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={handleCustomToggle}
+              className={cn(
+                "cursor-pointer rounded-lg border border-dashed px-3 py-2.5 text-sm font-medium transition-all inline-flex items-center gap-1.5",
+                isCustomSelected
+                  ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                  : "border-input text-muted-foreground hover:bg-accent hover:text-accent-foreground hover:border-primary/30"
+              )}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              {isCustomSelected ? selectedTeam : "직접 입력"}
+            </button>
+          )}
         </div>
       </div>
 

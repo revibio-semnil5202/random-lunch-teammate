@@ -32,9 +32,11 @@
 - `lunch_date` date NOT NULL 추가 — 팀점 진행일
 - `match_deadline` timestamp NOT NULL 추가 — 매칭 마감 시각 (ex: 11:00)
 - `status` varchar(20) NOT NULL default 'recruiting' — 그룹 상태 ("recruiting" | "matched")
+- `max_group_size` integer NOT NULL default 4 — 매칭 시 최대 그룹 인원 (3~12)
+- `slack_channel_url` varchar(500) nullable — 슬랙 채널 바로가기 URL
 
 ### members 테이블 변경
-- `department` NOT NULL로 변경 — 소속 팀 필수값
+- `department` NOT NULL로 변경 — 소속 팀 필수값 (프리셋 또는 직접 입력 문자열)
 - `name` length 50 → 10 축소
 
 ### group_members 테이블 변경
@@ -45,7 +47,7 @@
 ### match_results 테이블 (신규)
 - `id` serial PK
 - `group_id` integer NOT NULL, FK → groups.id
-- `match_group_index` integer NOT NULL — 몇 번째 조인지 (0, 1, 2...)
+- `match_group_index` integer NOT NULL — 몇 번째 조인지 (1, 2, 3...)
 - `member_id` integer NOT NULL, FK → members.id
 - `created_at` timestamp default NOW
 
@@ -54,7 +56,7 @@
 ```typescript
 interface Participant {
   id: string;
-  team: string;    // 소속 팀
+  team: string;    // 소속 팀 (프리셋 or 직접 입력)
   name: string;    // 이름
   createdAt: string;
 }
@@ -69,10 +71,33 @@ interface MatchGroup {
 }
 ```
 
-## 소속 팀 관리
-
-TypeScript 상수 배열 (`src/constants/teams.ts`):
+## 그룹 데이터 구조
 
 ```typescript
-export const TEAMS = ["기획팀", "마케팅팀", "광고팀", "출판팀", "개발팀", "디자인팀", "인사팀", "총무팀", "QA팀"] as const;
+interface Group {
+  id: string;
+  title: string;
+  lunchDate: string;
+  lunchDateDisplay: string;
+  participantCount: number;
+  participants: Participant[];
+  status: "recruiting" | "matched";
+  matchDeadline: string;
+  matchResult?: MatchGroup[];
+  slackChannelUrl?: string;
+}
 ```
+
+## 소속 팀 관리
+
+TypeScript 상수 배열 (`src/constants/teams.ts`) + 직접 입력 지원:
+
+```typescript
+export const TEAMS = [
+  "기획", "마케팅", "광고", "출판",
+  "백엔드", "프론트", "iOS", "Android", "플러터",
+  "디자인", "인사", "총무", "QA",
+] as const;
+```
+
+DB에는 string으로 저장 (프리셋/커스텀 구분 없음).
