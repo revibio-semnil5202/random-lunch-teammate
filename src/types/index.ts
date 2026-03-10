@@ -31,7 +31,7 @@ export interface Group {
   lunchDateDisplay: string;
   participantCount: number;
   participants: Participant[];
-  status: "recruiting" | "matched";
+  status: "recruiting" | "matched" | "cancelled";
   matchDeadline: string;
   matchResult?: MatchGroup[];
   slackChannelUrl?: string;

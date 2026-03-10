@@ -58,6 +58,18 @@ export const mockGroups: Group[] = [
       { id: "p14", team: "광고", name: "류승룡", createdAt: "2026-03-10T10:25:00" },
     ],
   },
+  {
+    id: "g3",
+    title: "리비바이오&알렌의서재",
+    lunchDate: "2026-03-13",
+    lunchDateDisplay: "03.13.금",
+    participantCount: 1,
+    status: "cancelled",
+    matchDeadline: "2026-03-13T11:00:00",
+    participants: [
+      { id: "p15", team: "기획", name: "박서연", createdAt: "2026-03-12T09:00:00" },
+    ],
+  },
 ];
 
 export const mockPastGroups: Group[] = [
