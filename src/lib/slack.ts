@@ -24,31 +24,14 @@ export async function sendWeeklyNotice(
   participantCount: number,
   groupId: string
 ) {
+  const link = `${SERVICE_URL}/groups/${groupId}`;
   const blocks = [
     {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `🍽️ *[${groupTitle}] 이번 주 팀점 참여자를 모집합니다!*`,
+        text: `🍽️ *[${groupTitle}] 이번 주 팀점 참여자를 모집합니다!*\n\n이번 주 *${lunchDay}* 팀점이 진행됩니다.\n현재 *${participantCount}명* 참여 중입니다.\n\n👉 <${link}|참여하기>`,
       },
-    },
-    {
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: `이번 주 *${lunchDay}* 팀점이 진행됩니다.\n현재 *${participantCount}명* 참여 중입니다.\n\n아래 버튼에서 참여 여부를 선택해 주세요.`,
-      },
-    },
-    {
-      type: "actions",
-      elements: [
-        {
-          type: "button",
-          text: { type: "plain_text", text: "참여하기", emoji: true },
-          url: `${SERVICE_URL}/groups/${groupId}`,
-          action_id: "join_group",
-        },
-      ],
     },
     {
       type: "context",
@@ -71,31 +54,14 @@ export async function sendDeadlineReminder(
   participantCount: number,
   groupId: string
 ) {
+  const link = `${SERVICE_URL}/groups/${groupId}`;
   const blocks = [
     {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `⏰ *[${groupTitle}] 오늘 팀점 매칭까지 1시간 남았어요!*`,
+        text: `⏰ *[${groupTitle}] 오늘 팀점 매칭까지 1시간 남았어요!*\n\n오늘 *${deadlineTime}*에 매칭이 마감됩니다.\n현재 *${participantCount}명* 참여 중입니다.\n\n혹시 사정이 생기셨다면 지금 참여 명단에서 이름을 빼주세요.\n\n👉 <${link}|확인하기>`,
       },
-    },
-    {
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: `오늘 *${deadlineTime}*에 매칭이 마감됩니다.\n현재 *${participantCount}명* 참여 중입니다.\n\n혹시 사정이 생기셨다면 지금 참여 명단에서 이름을 빼주세요.`,
-      },
-    },
-    {
-      type: "actions",
-      elements: [
-        {
-          type: "button",
-          text: { type: "plain_text", text: "확인하기", emoji: true },
-          url: `${SERVICE_URL}/groups/${groupId}`,
-          action_id: "check_group",
-        },
-      ],
     },
     {
       type: "context",
@@ -118,31 +84,14 @@ export async function sendMatchResult(
   totalMembers: number,
   groupId: string
 ) {
+  const link = `${SERVICE_URL}/groups/${groupId}`;
   const blocks = [
     {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `🎉 *[${groupTitle}] 팀점 매칭 결과가 나왔습니다!*`,
+        text: `🎉 *[${groupTitle}] 팀점 매칭 결과가 나왔습니다!*\n\n총 *${totalMembers}명*이 *${groupCount}개 조*로 매칭되었습니다.\n\n누구와 함께하게 되었는지 확인해 보세요.\n\n👉 <${link}|결과 보기>`,
       },
-    },
-    {
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: `총 *${totalMembers}명*이 *${groupCount}개 조*로 매칭되었습니다.\n\n누구와 함께하게 되었는지 확인해 보세요.`,
-      },
-    },
-    {
-      type: "actions",
-      elements: [
-        {
-          type: "button",
-          text: { type: "plain_text", text: "결과 보기", emoji: true },
-          url: `${SERVICE_URL}/groups/${groupId}`,
-          action_id: "view_result",
-        },
-      ],
     },
     {
       type: "context",
