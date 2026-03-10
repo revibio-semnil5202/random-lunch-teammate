@@ -105,7 +105,7 @@ export function GroupCard({ group }: GroupCardProps) {
             />
           </div>
           <span className="text-sm font-medium text-muted-foreground">
-            {group.lunchDateDisplay}
+            {group.lunchDateDisplay} 점심
           </span>
         </div>
 
@@ -126,7 +126,7 @@ export function GroupCard({ group }: GroupCardProps) {
             />
           </div>
           <span className="text-sm font-medium text-muted-foreground">
-            {group.matchDeadlineDisplay} 마감
+            {group.matchDeadlineDisplay} 모집 마감
           </span>
         </div>
       </div>

@@ -122,7 +122,7 @@ export function GroupDetail({ group }: GroupDetailProps) {
                 <Calendar className="h-3.5 w-3.5 text-primary" />
               </div>
               <span className="text-sm font-medium text-muted-foreground">
-                {group.lunchDateDisplay}
+                {group.lunchDateDisplay} 점심
               </span>
             </div>
             <div className="h-4 w-px bg-border" />
@@ -131,7 +131,7 @@ export function GroupDetail({ group }: GroupDetailProps) {
                 <AlarmClock className="h-3.5 w-3.5 text-primary" />
               </div>
               <span className="text-sm font-medium text-muted-foreground">
-                {group.matchDeadlineDisplay} 마감
+                {group.matchDeadlineDisplay} 모집 마감
               </span>
             </div>
           </div>
