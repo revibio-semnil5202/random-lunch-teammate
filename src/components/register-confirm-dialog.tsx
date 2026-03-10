@@ -20,6 +20,7 @@ interface RegisterConfirmDialogProps {
   lunchDateDisplay: string;
   isLoading: boolean;
   onConfirm: () => void;
+  error?: string | null;
 }
 
 export function RegisterConfirmDialog({
@@ -31,6 +32,7 @@ export function RegisterConfirmDialog({
   lunchDateDisplay,
   isLoading,
   onConfirm,
+  error,
 }: RegisterConfirmDialogProps) {
   return (
     <Dialog open={open} onOpenChange={isLoading ? undefined : onOpenChange}>
@@ -42,6 +44,9 @@ export function RegisterConfirmDialog({
             <span>{lunchDateDisplay} {groupTitle} 랜덤 팀점에 참여하시겠습니까?</span>
           </DialogDescription>
         </DialogHeader>
+        {error && (
+          <p className="text-sm text-destructive">{error}</p>
+        )}
         <DialogFooter>
           <Button
             variant="outline"

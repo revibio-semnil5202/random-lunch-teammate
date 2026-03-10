@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Calendar, Users, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { ParticipantForm } from "@/components/participant-form";
 import { ParticipantList } from "@/components/participant-list";
 import { RegisterConfirmDialog } from "@/components/register-confirm-dialog";
 import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
+import { registerParticipant, deleteParticipant } from "@/actions/participants";
 import type { Group, Participant } from "@/types";
 
 interface GroupDetailProps {
@@ -14,63 +16,80 @@ interface GroupDetailProps {
 }
 
 export function GroupDetail({ group }: GroupDetailProps) {
-  const [participants, setParticipants] = useState<Participant[]>(
-    group.participants
-  );
+  const router = useRouter();
+
   const [selectedTeam, setSelectedTeam] = useState("");
   const [nameInput, setNameInput] = useState("");
 
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isRegisterLoading, setIsRegisterLoading] = useState(false);
+  const [registerError, setRegisterError] = useState<string | null>(null);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [targetDeleteParticipant, setTargetDeleteParticipant] =
     useState<Participant | null>(null);
 
-  const isDuplicate = participants.some(
+  const isDuplicate = group.participants.some(
     (p) => p.team === selectedTeam && p.name === nameInput.trim()
   );
 
   const handleRegisterClick = () => {
     if (!selectedTeam || !nameInput.trim()) return;
+    setRegisterError(null);
     setIsRegisterModalOpen(true);
   };
 
   const handleRegisterConfirm = async () => {
     setIsRegisterLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    setRegisterError(null);
 
-    const newParticipant: Participant = {
-      id: `p-${Date.now()}`,
+    const result = await registerParticipant({
+      eventId: group.id,
       team: selectedTeam,
       name: nameInput.trim(),
-      createdAt: new Date().toISOString(),
-    };
+    });
 
-    setParticipants((prev) => [...prev, newParticipant]);
     setIsRegisterLoading(false);
+
+    if (!result.success) {
+      setRegisterError(result.error);
+      return;
+    }
+
     setIsRegisterModalOpen(false);
     setSelectedTeam("");
     setNameInput("");
+    router.refresh();
   };
 
   const handleDeleteClick = (participant: Participant) => {
     setTargetDeleteParticipant(participant);
+    setDeleteError(null);
     setIsDeleteModalOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
     if (!targetDeleteParticipant) return;
     setIsDeleteLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    setDeleteError(null);
 
-    setParticipants((prev) =>
-      prev.filter((p) => p.id !== targetDeleteParticipant.id)
-    );
+    const result = await deleteParticipant({
+      eventId: group.id,
+      participantId: targetDeleteParticipant.id,
+    });
+
     setIsDeleteLoading(false);
+
+    if (!result.success) {
+      setDeleteError(result.error ?? "삭제에 실패했습니다.");
+      return;
+    }
+
     setIsDeleteModalOpen(false);
     setTargetDeleteParticipant(null);
+    router.refresh();
   };
 
   return (
@@ -94,7 +113,7 @@ export function GroupDetail({ group }: GroupDetailProps) {
                 <Users className="h-3.5 w-3.5 text-primary" />
               </div>
               <span className="text-sm font-semibold">
-                {participants.length}명 참여
+                {group.participants.length}명 참여
               </span>
             </div>
             <div className="h-4 w-px bg-border" />
@@ -127,28 +146,36 @@ export function GroupDetail({ group }: GroupDetailProps) {
       {/* 참여자 목록 영역 */}
       <div className="rounded-2xl border bg-card p-6">
         <ParticipantList
-          participants={participants}
+          participants={group.participants}
           onDeleteClick={handleDeleteClick}
         />
       </div>
 
       <RegisterConfirmDialog
         open={isRegisterModalOpen}
-        onOpenChange={setIsRegisterModalOpen}
+        onOpenChange={(open) => {
+          setIsRegisterModalOpen(open);
+          if (!open) setRegisterError(null);
+        }}
         team={selectedTeam}
         name={nameInput}
         groupTitle={group.title}
         lunchDateDisplay={group.lunchDateDisplay}
         isLoading={isRegisterLoading}
         onConfirm={handleRegisterConfirm}
+        error={registerError}
       />
 
       <DeleteConfirmDialog
         open={isDeleteModalOpen}
-        onOpenChange={setIsDeleteModalOpen}
+        onOpenChange={(open) => {
+          setIsDeleteModalOpen(open);
+          if (!open) setDeleteError(null);
+        }}
         participant={targetDeleteParticipant}
         isLoading={isDeleteLoading}
         onConfirm={handleDeleteConfirm}
+        error={deleteError}
       />
     </div>
   );

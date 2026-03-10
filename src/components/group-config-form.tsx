@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, X, Repeat } from "lucide-react";
+import { Plus, X, Repeat, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,12 +13,14 @@ interface GroupConfigFormProps {
   config?: GroupConfig | null;
   onSubmit: (data: Omit<GroupConfig, "id" | "createdAt">) => void;
   onCancel: () => void;
+  isSubmitting?: boolean;
 }
 
 export function GroupConfigForm({
   config,
   onSubmit,
   onCancel,
+  isSubmitting = false,
 }: GroupConfigFormProps) {
   const [title, setTitle] = useState("");
   const [schedule, setSchedule] = useState<DayOfWeek[]>(["수"]);
@@ -230,13 +232,15 @@ export function GroupConfigForm({
 
       {/* 버튼 */}
       <div className="flex gap-2 pt-2">
-        <Button type="submit" disabled={!isValid} className="flex-1">
+        <Button type="submit" disabled={!isValid || isSubmitting} className="flex-1">
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {config ? "수정" : "추가"}
         </Button>
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
+          disabled={isSubmitting}
           className="flex-1"
         >
           취소

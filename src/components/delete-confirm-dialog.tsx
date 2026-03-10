@@ -18,6 +18,7 @@ interface DeleteConfirmDialogProps {
   participant: Participant | null;
   isLoading: boolean;
   onConfirm: () => void;
+  error?: string | null;
 }
 
 export function DeleteConfirmDialog({
@@ -26,6 +27,7 @@ export function DeleteConfirmDialog({
   participant,
   isLoading,
   onConfirm,
+  error,
 }: DeleteConfirmDialogProps) {
   if (!participant) return null;
 
@@ -39,6 +41,9 @@ export function DeleteConfirmDialog({
             <span>삭제하시겠습니까?</span>
           </DialogDescription>
         </DialogHeader>
+        {error && (
+          <p className="text-sm text-destructive">{error}</p>
+        )}
         <DialogFooter>
           <Button
             variant="outline"

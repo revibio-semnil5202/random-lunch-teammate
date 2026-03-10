@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, Calendar, Clock, Users, Repeat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { GroupConfigForm } from "@/components/group-config-form";
+import {
+  createGroupConfig,
+  updateGroupConfig,
+  deleteGroupConfig,
+} from "@/actions/admin";
 import type { GroupConfig } from "@/types";
 
 interface GroupManagementProps {
@@ -18,35 +24,60 @@ interface GroupManagementProps {
 }
 
 export function GroupManagement({ initialConfigs }: GroupManagementProps) {
-  const [configs, setConfigs] = useState<GroupConfig[]>(initialConfigs);
+  const router = useRouter();
+  const [configs] = useState<GroupConfig[]>(initialConfigs);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<GroupConfig | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<GroupConfig | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  const handleAdd = (data: Omit<GroupConfig, "id" | "createdAt">) => {
-    const newConfig: GroupConfig = {
-      ...data,
-      id: `gc-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-    };
-    setConfigs((prev) => [...prev, newConfig]);
-    setIsFormOpen(false);
+  const handleAdd = async (data: Omit<GroupConfig, "id" | "createdAt">) => {
+    setIsSubmitting(true);
+    setActionError(null);
+    try {
+      await createGroupConfig(data);
+      setIsFormOpen(false);
+      router.refresh();
+    } catch {
+      setActionError("그룹 추가에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleEdit = (data: Omit<GroupConfig, "id" | "createdAt">) => {
+  const handleEdit = async (data: Omit<GroupConfig, "id" | "createdAt">) => {
     if (!editTarget) return;
-    setConfigs((prev) =>
-      prev.map((c) =>
-        c.id === editTarget.id ? { ...c, ...data } : c
-      )
-    );
-    setEditTarget(null);
+    setIsSubmitting(true);
+    setActionError(null);
+    try {
+      await updateGroupConfig(editTarget.id, data);
+      setEditTarget(null);
+      router.refresh();
+    } catch {
+      setActionError("그룹 수정에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteTarget) return;
-    setConfigs((prev) => prev.filter((c) => c.id !== deleteTarget.id));
-    setDeleteTarget(null);
+    setIsSubmitting(true);
+    setActionError(null);
+    try {
+      const result = await deleteGroupConfig(deleteTarget.id);
+      if (!result.success) {
+        setActionError(result.error ?? "그룹 삭제에 실패했습니다.");
+        return;
+      }
+      setDeleteTarget(null);
+      router.refresh();
+    } catch {
+      setActionError("그룹 삭제에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const formatSchedule = (config: GroupConfig) => {
@@ -60,7 +91,7 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">그룹 관리</h1>
-        <Button onClick={() => setIsFormOpen(true)}>
+        <Button onClick={() => { setActionError(null); setIsFormOpen(true); }}>
           <Plus className="h-4 w-4 mr-1.5" />
           그룹 추가
         </Button>
@@ -77,7 +108,7 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
             variant="outline"
             size="sm"
             className="mt-4"
-            onClick={() => setIsFormOpen(true)}
+            onClick={() => { setActionError(null); setIsFormOpen(true); }}
           >
             <Plus className="h-3.5 w-3.5 mr-1" />
             첫 그룹 만들기
@@ -115,14 +146,14 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     type="button"
-                    onClick={() => setEditTarget(config)}
+                    onClick={() => { setActionError(null); setEditTarget(config); }}
                     className="cursor-pointer rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
                   <button
                     type="button"
-                    onClick={() => setDeleteTarget(config)}
+                    onClick={() => { setActionError(null); setDeleteTarget(config); }}
                     className="cursor-pointer rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -135,34 +166,42 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
       )}
 
       {/* 추가 다이얼로그 */}
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+      <Dialog open={isFormOpen} onOpenChange={(open) => { setIsFormOpen(open); if (!open) setActionError(null); }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>그룹 추가</DialogTitle>
           </DialogHeader>
+          {actionError && isFormOpen && (
+            <p className="text-sm text-destructive">{actionError}</p>
+          )}
           <GroupConfigForm
             onSubmit={handleAdd}
             onCancel={() => setIsFormOpen(false)}
+            isSubmitting={isSubmitting}
           />
         </DialogContent>
       </Dialog>
 
       {/* 수정 다이얼로그 */}
-      <Dialog open={!!editTarget} onOpenChange={() => setEditTarget(null)}>
+      <Dialog open={!!editTarget} onOpenChange={(open) => { if (!open) { setEditTarget(null); setActionError(null); } }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>그룹 수정</DialogTitle>
           </DialogHeader>
+          {actionError && !!editTarget && (
+            <p className="text-sm text-destructive">{actionError}</p>
+          )}
           <GroupConfigForm
             config={editTarget}
             onSubmit={handleEdit}
             onCancel={() => setEditTarget(null)}
+            isSubmitting={isSubmitting}
           />
         </DialogContent>
       </Dialog>
 
       {/* 삭제 확인 다이얼로그 */}
-      <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) { setDeleteTarget(null); setActionError(null); } }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>그룹 삭제</DialogTitle>
@@ -172,17 +211,22 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
               <span className="font-bold text-foreground">{deleteTarget?.title}</span>
               <span>삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</span>
             </p>
+            {actionError && !!deleteTarget && (
+              <p className="text-sm text-destructive">{actionError}</p>
+            )}
             <div className="flex gap-2">
               <Button
                 variant="destructive"
                 onClick={handleDelete}
+                disabled={isSubmitting}
                 className="flex-1"
               >
                 삭제
               </Button>
               <Button
                 variant="outline"
-                onClick={() => setDeleteTarget(null)}
+                onClick={() => { setDeleteTarget(null); setActionError(null); }}
+                disabled={isSubmitting}
                 className="flex-1"
               >
                 취소
