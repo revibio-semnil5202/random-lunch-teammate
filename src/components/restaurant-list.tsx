@@ -248,8 +248,8 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold',
                 restaurant.mealSupport === '가능'
-                  ? 'bg-emerald-100 text-emerald-700'
-                  : 'bg-rose-100 text-rose-600',
+                  ? 'border border-emerald-500 text-emerald-700'
+                  : 'border border-rose-400 text-rose-600',
               )}
             >
               <CreditCard className="h-3 w-3" />
