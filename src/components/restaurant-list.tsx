@@ -233,7 +233,7 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
   const colors = CATEGORY_COLORS[restaurant.category] ?? { badge: 'bg-primary/10 text-primary', bar: 'bg-primary' };
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border p-5 transition-all hover:shadow-lg hover:-translate-y-0.5 bg-gradient-to-br from-muted/50 via-background to-muted/30">
+    <div className="group relative overflow-hidden rounded-2xl border p-5 bg-gradient-to-br from-muted/50 via-background to-muted/30">
       {/* 좌측 컬러 바 */}
       <div className={cn("absolute left-0 top-0 h-full w-1 rounded-l-2xl", colors.bar)} />
 
