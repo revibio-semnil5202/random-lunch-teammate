@@ -39,7 +39,7 @@ export function RegisterConfirmDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>참여 확인</DialogTitle>
-          <DialogDescription className="flex flex-col gap-1">
+          <DialogDescription className="flex flex-col gap-1 mt-2">
             <span className="font-bold text-foreground">{team}/{name}</span>
             <span>{lunchDateDisplay} {groupTitle} 랜덤 팀점에 참여하시겠습니까?</span>
           </DialogDescription>

@@ -46,7 +46,7 @@ export function DeleteConfirmDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>참여자 삭제</DialogTitle>
-          <DialogDescription className="flex flex-col gap-1">
+          <DialogDescription className="flex flex-col gap-1 mt-2">
             <span>
               <span className="font-bold text-foreground">{participant.team}/{participant.name}</span>
               을(를) 삭제하시겠습니까?

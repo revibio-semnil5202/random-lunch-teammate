@@ -208,7 +208,7 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
             <DialogTitle>그룹 삭제</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground flex flex-col gap-1">
+            <p className="text-sm text-muted-foreground flex flex-col gap-1 mt-2">
               <span className="font-bold text-foreground">{deleteTarget?.title}</span>
               <span>삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</span>
             </p>
