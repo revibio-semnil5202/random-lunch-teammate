@@ -125,7 +125,12 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
 
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-3 min-w-0">
-                  <h3 className="font-bold text-base">{config.title}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-base">{config.title}</h3>
+                    {config.groupType === "team" && (
+                      <Badge variant="outline" className="text-xs h-5 px-1.5">팀 단위</Badge>
+                    )}
+                  </div>
 
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="secondary" className="gap-1">

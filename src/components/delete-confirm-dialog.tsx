@@ -12,11 +12,12 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Participant } from "@/types";
+import type { Participant, GroupType } from "@/types";
 
 interface DeleteConfirmDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  groupType?: GroupType;
   participant: Participant | null;
   isLoading: boolean;
   onConfirm: () => void;
@@ -26,6 +27,7 @@ interface DeleteConfirmDialogProps {
 export function DeleteConfirmDialog({
   open,
   onOpenChange,
+  groupType = "company",
   participant,
   isLoading,
   onConfirm,
@@ -48,7 +50,7 @@ export function DeleteConfirmDialog({
           <DialogTitle>참여자 삭제</DialogTitle>
           <DialogDescription className="flex flex-col gap-1 mt-2">
             <span>
-              <span className="font-bold text-foreground">{participant.team}/{participant.name}</span>
+              <span className="font-bold text-foreground">{groupType === "team" ? participant.name : `${participant.team}/${participant.name}`}</span>
               을(를) 삭제하시겠습니까?
             </span>
             <span>본인 확인을 위해 이름을 입력해 주세요.</span>

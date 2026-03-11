@@ -35,8 +35,10 @@ export function GroupDetail({ group }: GroupDetailProps) {
     (p) => p.team === selectedTeam && p.name === nameInput.trim()
   );
 
+  const isTeamType = group.groupType === "team";
+
   const handleRegisterClick = () => {
-    if (!selectedTeam || !nameInput.trim()) return;
+    if (!isTeamType && !selectedTeam || !nameInput.trim()) return;
     setRegisterError(null);
     setIsRegisterModalOpen(true);
   };
@@ -49,6 +51,7 @@ export function GroupDetail({ group }: GroupDetailProps) {
       eventId: group.id,
       team: selectedTeam,
       name: nameInput.trim(),
+      groupType: group.groupType,
     });
 
     setIsRegisterLoading(false);
@@ -142,12 +145,13 @@ export function GroupDetail({ group }: GroupDetailProps) {
       <div className="rounded-2xl border bg-card p-6">
         <h2 className="text-lg font-semibold mb-5">참여 등록</h2>
         <ParticipantForm
+          groupType={group.groupType}
           selectedTeam={selectedTeam}
           onTeamChange={setSelectedTeam}
           nameInput={nameInput}
           onNameChange={setNameInput}
           onSubmit={handleRegisterClick}
-          isDisabled={!selectedTeam || !nameInput.trim() || isDuplicate}
+          isDisabled={(!isTeamType && !selectedTeam) || !nameInput.trim() || isDuplicate}
           isDuplicate={isDuplicate}
         />
       </div>
@@ -155,6 +159,7 @@ export function GroupDetail({ group }: GroupDetailProps) {
       {/* 참여자 목록 영역 */}
       <div className="rounded-2xl border bg-card p-6">
         <ParticipantList
+          groupType={group.groupType}
           participants={group.participants}
           onDeleteClick={handleDeleteClick}
         />
@@ -166,6 +171,7 @@ export function GroupDetail({ group }: GroupDetailProps) {
           setIsRegisterModalOpen(open);
           if (!open) setRegisterError(null);
         }}
+        groupType={group.groupType}
         team={selectedTeam}
         name={nameInput}
         groupTitle={group.title}
@@ -181,6 +187,7 @@ export function GroupDetail({ group }: GroupDetailProps) {
           setIsDeleteModalOpen(open);
           if (!open) setDeleteError(null);
         }}
+        groupType={group.groupType}
         participant={targetDeleteParticipant}
         isLoading={isDeleteLoading}
         onConfirm={handleDeleteConfirm}

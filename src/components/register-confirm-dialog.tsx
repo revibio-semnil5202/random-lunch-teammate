@@ -10,10 +10,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import type { GroupType } from "@/types";
 
 interface RegisterConfirmDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  groupType?: GroupType;
   team: string;
   name: string;
   groupTitle: string;
@@ -26,6 +28,7 @@ interface RegisterConfirmDialogProps {
 export function RegisterConfirmDialog({
   open,
   onOpenChange,
+  groupType = "company",
   team,
   name,
   groupTitle,
@@ -40,7 +43,7 @@ export function RegisterConfirmDialog({
         <DialogHeader>
           <DialogTitle>참여 확인</DialogTitle>
           <DialogDescription className="flex flex-col gap-1 mt-2">
-            <span className="font-bold text-foreground">{team}/{name}</span>
+            <span className="font-bold text-foreground">{groupType === "team" ? name : `${team}/${name}`}</span>
             <span>{lunchDateDisplay} {groupTitle} 랜덤 팀점에 참여하시겠습니까?</span>
           </DialogDescription>
         </DialogHeader>

@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { TimePicker } from "@/components/time-picker";
 import { DAYS_OF_WEEK } from "@/types";
-import type { GroupConfig, DayOfWeek } from "@/types";
+import type { GroupConfig, GroupType, DayOfWeek } from "@/types";
 
 interface GroupConfigFormProps {
   config?: GroupConfig | null;
@@ -23,6 +23,8 @@ export function GroupConfigForm({
   onCancel,
   isSubmitting = false,
 }: GroupConfigFormProps) {
+  const [groupType, setGroupType] = useState<GroupType>(config?.groupType ?? "company");
+  const isEditing = !!config;
   const [title, setTitle] = useState(config?.title ?? "");
   const [schedule, setSchedule] = useState<DayOfWeek[]>(config?.schedule ?? ["수"]);
   const [maxParticipants, setMaxParticipants] = useState(config?.maxParticipants ?? 4);
@@ -52,6 +54,7 @@ export function GroupConfigForm({
     e.preventDefault();
     onSubmit({
       title: title.trim(),
+      groupType,
       schedule,
       maxParticipants,
       matchDeadlineTime,
@@ -69,6 +72,48 @@ export function GroupConfigForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* 그룹 타입 */}
+      <div className="space-y-2">
+        <div>
+          <Label className="text-sm font-semibold">그룹 타입</Label>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            그룹 타입은 생성 후 변경할 수 없습니다.
+          </p>
+        </div>
+        <div className={cn("flex gap-2", isEditing && "opacity-50 pointer-events-none")}>
+          <button
+            type="button"
+            onClick={() => setGroupType("company")}
+            className={cn(
+              "flex-1 rounded-lg border px-3 py-3 text-sm font-medium transition-all cursor-pointer",
+              groupType === "company"
+                ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                : "border-input bg-background hover:bg-accent"
+            )}
+          >
+            <div className="font-semibold">법인 단위</div>
+            <div className={cn("text-xs mt-0.5", groupType === "company" ? "text-primary-foreground/80" : "text-muted-foreground")}>
+              참여자가 소속 팀과 이름을 입력합니다
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setGroupType("team")}
+            className={cn(
+              "flex-1 rounded-lg border px-3 py-3 text-sm font-medium transition-all cursor-pointer",
+              groupType === "team"
+                ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                : "border-input bg-background hover:bg-accent"
+            )}
+          >
+            <div className="font-semibold">팀 단위</div>
+            <div className={cn("text-xs mt-0.5", groupType === "team" ? "text-primary-foreground/80" : "text-muted-foreground")}>
+              참여자가 이름만 입력합니다
+            </div>
+          </button>
+        </div>
+      </div>
+
       {/* 그룹 이름 */}
       <div className="space-y-2">
         <Label className="text-sm font-semibold">그룹 이름</Label>

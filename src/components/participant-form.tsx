@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { UserPlus, Pencil, Check, X } from "lucide-react";
+import type { GroupType } from "@/types";
 
 interface ParticipantFormProps {
+  groupType?: GroupType;
   selectedTeam: string;
   onTeamChange: (team: string) => void;
   nameInput: string;
@@ -19,6 +21,7 @@ interface ParticipantFormProps {
 }
 
 export function ParticipantForm({
+  groupType = "company",
   selectedTeam,
   onTeamChange,
   nameInput,
@@ -69,7 +72,7 @@ export function ParticipantForm({
   return (
     <div className="mx-auto max-w-[800px] space-y-6">
       {/* 소속 팀 선택 */}
-      <div className="space-y-3">
+      {groupType !== "team" && <div className="space-y-3">
         <Label className="text-sm font-semibold">소속 팀</Label>
         <div className="flex flex-wrap gap-2">
           {TEAMS.map((team) => (
@@ -135,7 +138,7 @@ export function ParticipantForm({
             </button>
           )}
         </div>
-      </div>
+      </div>}
 
       {/* 이름 입력 */}
       <div className="space-y-3">
@@ -155,7 +158,7 @@ export function ParticipantForm({
       {/* 에러 + 등록 버튼 */}
       {isDuplicate && (
         <p className="text-sm text-destructive text-center">
-          이미 동일한 팀/이름으로 등록된 참여자가 있습니다.
+          {groupType === "team" ? "이미 동일한 이름으로 등록된 참여자가 있습니다." : "이미 동일한 팀/이름으로 등록된 참여자가 있습니다."}
         </p>
       )}
       <div className="flex justify-center pt-2">
