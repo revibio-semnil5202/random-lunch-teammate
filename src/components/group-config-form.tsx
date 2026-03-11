@@ -63,6 +63,7 @@ export function GroupConfigForm({
       matchDeadlineTime,
       slackChannelUrl: slackChannelUrl.trim() || undefined,
       slackWebhookUrl: slackWebhookUrl.trim() || undefined,
+      maxRounds: isLimited ? maxRounds : undefined,
     });
   };
 
@@ -94,9 +95,10 @@ export function GroupConfigForm({
                 : "border-input bg-background hover:bg-accent"
             )}
           >
-            <div className="font-semibold">법인 단위</div>
+            <div className="font-semibold">팀 구분</div>
             <div className={cn("text-xs mt-0.5", groupType === "company" ? "text-primary-foreground/80" : "text-muted-foreground")}>
-              참여자가 소속 팀과 이름을 입력합니다
+              <p>소속 팀 + 이름 입력</p>
+              <p>(여러 팀 혼합 시)</p>
             </div>
           </button>
           <button
