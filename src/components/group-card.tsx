@@ -35,12 +35,20 @@ export function GroupCard({ group }: GroupCardProps) {
 
       {/* 상단: 타이틀 + 상태 뱃지 */}
       <div className="flex items-start justify-between gap-3 mb-4">
-        <h3 className={cn(
-          "text-base font-bold leading-snug",
-          cancelled ? "text-muted-foreground line-through" : "text-foreground"
-        )}>
-          {group.title}
-        </h3>
+        <div>
+          <h3 className={cn(
+            "text-base font-bold leading-snug",
+            cancelled ? "text-muted-foreground line-through" : "text-foreground"
+          )}>
+            {group.title}
+          </h3>
+          {cancelled && (
+            <p className="text-xs text-muted-foreground mt-1">참여 인원이 부족하여 매칭이 취소되었습니다.</p>
+          )}
+          {!cancelled && (
+            <div className="mt-1 text-xs">&nbsp;</div>
+          )}
+        </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {cancelled ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700">
