@@ -24,6 +24,7 @@ export const groupConfigs = pgTable("group_configs", {
   matchDeadlineTime: varchar("match_deadline_time", { length: 5 }).notNull(),
   slackChannelUrl: varchar("slack_channel_url", { length: 500 }),
   slackWebhookUrl: varchar("slack_webhook_url", { length: 500 }),
+  maxRounds: integer("max_rounds"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

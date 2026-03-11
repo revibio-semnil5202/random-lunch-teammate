@@ -24,6 +24,7 @@ export interface GroupConfig {
   matchDeadlineTime: string;
   slackChannelUrl?: string;
   slackWebhookUrl?: string;
+  maxRounds?: number;
   createdAt: string;
 }
 

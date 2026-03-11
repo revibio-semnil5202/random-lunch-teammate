@@ -32,6 +32,9 @@ export function GroupConfigForm({
   const [matchDeadlineTime, setMatchDeadlineTime] = useState(config?.matchDeadlineTime ?? "11:00");
   const [slackChannelUrl, setSlackChannelUrl] = useState(config?.slackChannelUrl ?? "");
   const [slackWebhookUrl, setSlackWebhookUrl] = useState(config?.slackWebhookUrl ?? "");
+  const [isLimited, setIsLimited] = useState(config?.maxRounds != null);
+  const [maxRounds, setMaxRounds] = useState(config?.maxRounds ?? 1);
+  const [maxRoundsInput, setMaxRoundsInput] = useState(String(config?.maxRounds ?? 1));
 
   const handleDayChange = (weekIndex: number, day: DayOfWeek) => {
     setSchedule((prev) => prev.map((d, i) => (i === weekIndex ? day : d)));
@@ -106,9 +109,10 @@ export function GroupConfigForm({
                 : "border-input bg-background hover:bg-accent"
             )}
           >
-            <div className="font-semibold">팀 단위</div>
+            <div className="font-semibold">팀 미구분</div>
             <div className={cn("text-xs mt-0.5", groupType === "team" ? "text-primary-foreground/80" : "text-muted-foreground")}>
-              참여자가 이름만 입력합니다
+              <p>이름만 입력</p>
+              <p>(단일 팀일 때)</p>
             </div>
           </button>
         </div>
@@ -187,6 +191,61 @@ export function GroupConfigForm({
           <Repeat className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           <span className="text-sm font-medium">{previewText}</span>
         </div>
+      </div>
+
+      {/* 진행 횟수 */}
+      <div className="space-y-2">
+        <div>
+          <Label className="text-sm font-semibold">진행 횟수</Label>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            지정한 횟수만큼 매칭이 완료되면 더 이상 새 이벤트가 생성되지 않습니다.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setIsLimited(false)}
+            className={cn(
+              "rounded-lg border px-3 py-2 text-sm font-medium transition-all cursor-pointer",
+              !isLimited
+                ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                : "border-input bg-background hover:bg-accent"
+            )}
+          >
+            무제한
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsLimited(true)}
+            className={cn(
+              "rounded-lg border px-3 py-2 text-sm font-medium transition-all cursor-pointer",
+              isLimited
+                ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                : "border-input bg-background hover:bg-accent"
+            )}
+          >
+            횟수 지정
+          </button>
+        </div>
+        {isLimited && (
+          <div className="flex items-center gap-3">
+            <Input
+              type="number"
+              min={1}
+              max={100}
+              value={maxRoundsInput}
+              onChange={(e) => setMaxRoundsInput(e.target.value)}
+              onBlur={() => {
+                const v = Number(maxRoundsInput);
+                const clamped = Math.min(100, Math.max(1, isNaN(v) ? 1 : v));
+                setMaxRounds(clamped);
+                setMaxRoundsInput(String(clamped));
+              }}
+              className="w-24 h-10 text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <span className="text-sm text-muted-foreground">회</span>
+          </div>
+        )}
       </div>
 
       {/* 조별 최대 인원 */}

@@ -128,7 +128,10 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
                   <div className="flex items-center gap-2">
                     <h3 className="font-bold text-base">{config.title}</h3>
                     {config.groupType === "team" && (
-                      <Badge variant="outline" className="text-xs h-5 px-1.5">팀 단위</Badge>
+                      <Badge variant="outline" className="text-xs h-5 px-1.5">팀 미구분</Badge>
+                    )}
+                    {config.maxRounds != null && (
+                      <Badge variant="outline" className="text-xs h-5 px-1.5">{config.maxRounds}회</Badge>
                     )}
                   </div>
 

@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const allConfigs = await db.select().from(groupConfigs);
     await Promise.allSettled(
       allConfigs.map((c) =>
-        ensureThisWeekEvent(c.id, c.schedule as DayOfWeek[], c.matchDeadlineTime)
+        ensureThisWeekEvent(c.id, c.schedule as DayOfWeek[], c.matchDeadlineTime, c.maxRounds)
       )
     );
   }
@@ -52,7 +52,7 @@ async function handleWeekly() {
   const allConfigs = await db.select().from(groupConfigs);
   await Promise.allSettled(
     allConfigs.map((c) =>
-      ensureThisWeekEvent(c.id, c.schedule as DayOfWeek[], c.matchDeadlineTime)
+      ensureThisWeekEvent(c.id, c.schedule as DayOfWeek[], c.matchDeadlineTime, c.maxRounds)
     )
   );
 

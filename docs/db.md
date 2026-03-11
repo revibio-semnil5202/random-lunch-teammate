@@ -33,12 +33,13 @@
 |------|------|------|------|
 | id | serial | PK | 그룹 설정 고유 ID |
 | title | varchar(100) | NOT NULL | 그룹 이름 |
-| group_type | varchar(10) | NOT NULL, default 'company' | 그룹 타입: `company` (법인 단위) \| `team` (팀 단위) |
+| group_type | varchar(10) | NOT NULL, default 'company' | 그룹 타입: `company` (팀 구분) \| `team` (팀 미구분) |
 | schedule | jsonb | NOT NULL | 요일 로테이션 배열 (ex: `["수","목"]`) |
 | max_participants | integer | NOT NULL, default 4 | 최대 참여 인원 (최소 3, 최대 12) |
 | match_deadline_time | varchar(5) | NOT NULL, default '11:00' | 매칭 마감 시각 (HH:MM) |
 | slack_channel_url | varchar(500) | nullable | 슬랙 채널 바로가기 URL |
 | slack_webhook_url | varchar(500) | nullable | 슬랙 Incoming Webhook URL (알림 발송용) |
+| max_rounds | integer | nullable | 최대 진행 횟수 (NULL = 무제한) |
 | created_at | timestamp | NOT NULL, default NOW | 생성일 |
 
 **요일 로테이션 (schedule)**:
@@ -92,12 +93,13 @@
 interface GroupConfig {
   id: string;
   title: string;
-  groupType: GroupType;   // "company" (법인 단위) | "team" (팀 단위)
+  groupType: GroupType;   // "company" (팀 구분) | "team" (팀 미구분)
   schedule: DayOfWeek[];  // 요일 로테이션 ["수","목"] = 수→목 반복
   maxParticipants: number;
   matchDeadlineTime: string; // "11:00"
   slackChannelUrl?: string;
   slackWebhookUrl?: string;
+  maxRounds?: number;    // undefined/null = 무제한
   createdAt: string;
 }
 ```

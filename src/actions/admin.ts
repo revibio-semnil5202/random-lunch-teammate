@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { groupConfigs, lunchEvents } from "@/db/schema";
-import { eq, and, gte, lt } from "drizzle-orm";
+import { eq, and, gte, lt, count } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 import type { GroupConfig, GroupType, DayOfWeek } from "@/types";
 
@@ -25,6 +25,7 @@ function toGroupConfig(row: {
   matchDeadlineTime: string;
   slackChannelUrl: string | null;
   slackWebhookUrl: string | null;
+  maxRounds: number | null;
   createdAt: Date;
 }): GroupConfig {
   return {
@@ -36,6 +37,7 @@ function toGroupConfig(row: {
     matchDeadlineTime: row.matchDeadlineTime,
     slackChannelUrl: row.slackChannelUrl ?? undefined,
     slackWebhookUrl: row.slackWebhookUrl ?? undefined,
+    maxRounds: row.maxRounds ?? undefined,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -64,10 +66,11 @@ export async function createGroupConfig(
       matchDeadlineTime: data.matchDeadlineTime,
       slackChannelUrl: data.slackChannelUrl ?? null,
       slackWebhookUrl: data.slackWebhookUrl ?? null,
+      maxRounds: data.maxRounds ?? null,
     })
     .returning();
 
-  await ensureThisWeekEvent(row.id, row.schedule as DayOfWeek[], row.matchDeadlineTime);
+  await ensureThisWeekEvent(row.id, row.schedule as DayOfWeek[], row.matchDeadlineTime, row.maxRounds);
 
   revalidatePath("/admin/groups");
   revalidatePath("/");
@@ -90,11 +93,12 @@ export async function updateGroupConfig(
       matchDeadlineTime: data.matchDeadlineTime,
       slackChannelUrl: data.slackChannelUrl ?? null,
       slackWebhookUrl: data.slackWebhookUrl ?? null,
+      maxRounds: data.maxRounds ?? null,
     })
     .where(eq(groupConfigs.id, parseInt(id, 10)))
     .returning();
 
-  await ensureThisWeekEvent(row.id, row.schedule as DayOfWeek[], row.matchDeadlineTime);
+  await ensureThisWeekEvent(row.id, row.schedule as DayOfWeek[], row.matchDeadlineTime, row.maxRounds);
 
   revalidatePath("/admin/groups");
   revalidatePath("/");
@@ -145,8 +149,23 @@ function kstToUTC(year: number, month: number, day: number, hours: number, minut
 export async function ensureThisWeekEvent(
   groupConfigId: number,
   schedule: DayOfWeek[],
-  matchDeadlineTime: string
+  matchDeadlineTime: string,
+  maxRounds?: number | null
 ) {
+  // maxRounds 체크: 매칭 완료 횟수가 제한에 도달하면 새 이벤트 미생성
+  if (maxRounds != null) {
+    const matchedCount = await db
+      .select({ count: count() })
+      .from(lunchEvents)
+      .where(
+        and(
+          eq(lunchEvents.groupConfigId, groupConfigId),
+          eq(lunchEvents.status, "matched")
+        )
+      );
+    if (matchedCount[0].count >= maxRounds) return;
+  }
+
   const now = nowKST();
   const dayOfWeek = now.getUTCDay(); // 0=Sun (KST 기준)
   const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
