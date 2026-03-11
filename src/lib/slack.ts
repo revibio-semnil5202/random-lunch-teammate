@@ -21,7 +21,6 @@ export async function sendWeeklyNotice(
   webhookUrl: string,
   groupTitle: string,
   lunchDay: string,
-  participantCount: number,
   groupId: string
 ) {
   const link = `${SERVICE_URL}/groups/${groupId}`;
@@ -30,7 +29,7 @@ export async function sendWeeklyNotice(
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `🍽️ *[${groupTitle}] 이번 주 팀점 참여자를 모집합니다!*\n\n이번 주 *${lunchDay}* 팀점이 진행됩니다.\n현재 *${participantCount}명* 참여 중입니다.\n\n👉 <${link}|참여하기>`,
+        text: `🍽️ *[${groupTitle}] 이번 주 팀점 참여자를 모집합니다!*\n\n이번 주 *${lunchDay}* 팀점이 진행됩니다.\n아래 링크에서 참여해 주세요.\n\n👉 <${link}|참여하기>`,
       },
     },
     {

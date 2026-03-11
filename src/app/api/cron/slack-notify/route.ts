@@ -79,10 +79,6 @@ async function handleWeekly() {
     }
 
     const event = events[0];
-    const participants = await db
-      .select({ id: eventParticipants.id })
-      .from(eventParticipants)
-      .where(eq(eventParticipants.eventId, event.id));
 
     try {
       const lunchDate = new Date(event.lunchDate);
@@ -93,7 +89,6 @@ async function handleWeekly() {
         config.slackWebhookUrl!,
         config.title,
         lunchDay,
-        participants.length,
         event.id.toString()
       );
       results.push({ groupTitle: config.title, success: true });
