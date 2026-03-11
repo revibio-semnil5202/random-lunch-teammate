@@ -42,6 +42,7 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
   const [deleteTarget, setDeleteTarget] = useState<GroupConfig | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [formKey, setFormKey] = useState(0);
 
   const handleAdd = async (data: Omit<GroupConfig, "id" | "createdAt">) => {
     setIsSubmitting(true);
@@ -49,6 +50,7 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
     try {
       await createGroupConfig(data);
       setIsFormOpen(false);
+      setFormKey((k) => k + 1);
       if (isEventNextWeek(data.schedule)) {
         toast.info("이번 주 진행 요일이 지나 다음 주에 이벤트가 생성됩니다.");
       }
@@ -200,6 +202,7 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
             <p className="text-sm text-destructive">{actionError}</p>
           )}
           <GroupConfigForm
+            key={formKey}
             onSubmit={handleAdd}
             onCancel={() => setIsFormOpen(false)}
             isSubmitting={isSubmitting}
