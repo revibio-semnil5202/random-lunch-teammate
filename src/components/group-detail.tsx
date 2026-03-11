@@ -143,7 +143,7 @@ export function GroupDetail({ group }: GroupDetailProps) {
 
       {/* 등록 폼 영역 */}
       <div className="rounded-2xl border bg-card p-6">
-        <h2 className="text-lg font-semibold mb-5">참여 등록</h2>
+        <h2 className="text-lg font-semibold mb-5">참여자 등록</h2>
         <ParticipantForm
           groupType={group.groupType}
           selectedTeam={selectedTeam}

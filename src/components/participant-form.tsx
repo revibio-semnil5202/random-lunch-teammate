@@ -141,10 +141,12 @@ export function ParticipantForm({
       </div>}
 
       {/* 이름 입력 */}
-      <div className="space-y-3">
-        <Label htmlFor="name-input" className="text-sm font-semibold">
-          이름
-        </Label>
+      <div className={cn("space-y-3", groupType === "team" && "flex flex-col items-center")}>
+        <div className={cn(groupType === "team" && "w-full max-w-sm")}>
+          <Label htmlFor="name-input" className="text-sm font-semibold">
+            이름
+          </Label>
+        </div>
         <Input
           id="name-input"
           value={nameInput}
