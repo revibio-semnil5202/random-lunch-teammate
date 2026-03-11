@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, Calendar, Clock, Users, Repeat } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,7 +18,17 @@ import {
   updateGroupConfig,
   deleteGroupConfig,
 } from "@/actions/admin";
-import type { GroupConfig } from "@/types";
+import type { GroupConfig, DayOfWeek } from "@/types";
+
+const KOREAN_DAY_NUM: Record<string, number> = { "월": 1, "화": 2, "수": 3, "목": 4, "금": 5 };
+
+function isEventNextWeek(schedule: DayOfWeek[]): boolean {
+  const kstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const dayOfWeek = kstNow.getUTCDay();
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+  const firstDayNum = KOREAN_DAY_NUM[schedule[0]] ?? 1;
+  return isWeekend || firstDayNum <= dayOfWeek;
+}
 
 interface GroupManagementProps {
   initialConfigs: GroupConfig[];
@@ -38,6 +49,9 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
     try {
       await createGroupConfig(data);
       setIsFormOpen(false);
+      if (isEventNextWeek(data.schedule)) {
+        toast.info("이번 주 진행 요일이 지나 다음 주에 이벤트가 생성됩니다.");
+      }
       router.refresh();
     } catch {
       setActionError("그룹 추가에 실패했습니다.");
@@ -53,6 +67,9 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
     try {
       await updateGroupConfig(editTarget.id, data);
       setEditTarget(null);
+      if (isEventNextWeek(data.schedule)) {
+        toast.info("이번 주 진행 요일이 지나 다음 주에 이벤트가 생성됩니다.");
+      }
       router.refresh();
     } catch {
       setActionError("그룹 수정에 실패했습니다.");

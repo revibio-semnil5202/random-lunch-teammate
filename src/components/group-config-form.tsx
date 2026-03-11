@@ -69,10 +69,18 @@ export function GroupConfigForm({
 
   const isValid = title.trim() && maxParticipants >= 3 && schedule.length > 0;
 
-  const previewText =
-    schedule.length === 1
-      ? `매주 ${schedule[0]}요일`
-      : schedule.join(" → ") + " 반복";
+  // maxRounds보다 큰 인덱스의 주차는 실행되지 않음
+  const disabledFromIndex = isLimited ? maxRounds : null;
+
+  // 마운트 시점의 KST 요일 (렌더 중 Date.now 호출 방지)
+  const [todayDayOfWeek] = useState(() => {
+    const kstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
+    return kstNow.getUTCDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  });
+  const isWeekend = todayDayOfWeek === 0 || todayDayOfWeek === 6;
+  const KOREAN_DAY_NUM: Record<string, number> = { "월": 1, "화": 2, "수": 3, "목": 4, "금": 5 };
+  const firstDayNum = KOREAN_DAY_NUM[schedule[0]] ?? 1;
+  const isFirstDayNextWeek = isWeekend || firstDayNum <= todayDayOfWeek;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -142,8 +150,10 @@ export function GroupConfigForm({
         </div>
 
         <div className="space-y-2.5">
-          {schedule.map((selectedDay, weekIndex) => (
-            <div key={weekIndex} className="flex items-center gap-2.5">
+          {schedule.map((selectedDay, weekIndex) => {
+            const isDisabledWeek = disabledFromIndex != null && weekIndex >= disabledFromIndex;
+            return (
+            <div key={weekIndex} className={cn("flex items-center gap-2.5", isDisabledWeek && "opacity-40 pointer-events-none")}>
               <span className="w-14 shrink-0 text-xs font-semibold text-muted-foreground">
                 {weekIndex + 1}주차
               </span>
@@ -174,14 +184,18 @@ export function GroupConfigForm({
                 </button>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {schedule.length < 5 && (
           <button
             type="button"
             onClick={addWeek}
-            className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-dashed px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className={cn(
+              "inline-flex cursor-pointer items-center gap-1 rounded-md border border-dashed px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+              disabledFromIndex != null && schedule.length >= disabledFromIndex && "opacity-40 pointer-events-none"
+            )}
           >
             <Plus className="h-3 w-3" />
             주차 추가
@@ -191,7 +205,36 @@ export function GroupConfigForm({
         {/* 로테이션 미리보기 */}
         <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2.5">
           <Repeat className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <span className="text-sm font-medium">{previewText}</span>
+          <span className="text-sm font-medium">
+            {isLimited ? (
+              schedule.length === 1 ? (
+                `${isFirstDayNextWeek ? "다음주" : "이번주"} ${schedule[0]}요일`
+              ) : (
+                <>
+                  {schedule.map((day, i) => (
+                    <span key={i}>
+                      {i > 0 && " → "}
+                      <span className={cn(disabledFromIndex != null && i >= disabledFromIndex && "line-through opacity-40")}>
+                        {i === 0 ? `${isFirstDayNextWeek ? "다음주" : "이번주"} ${day}` : day}
+                      </span>
+                    </span>
+                  ))}
+                </>
+              )
+            ) : schedule.length === 1 ? (
+              `매주 ${schedule[0]}요일`
+            ) : (
+              <>
+                {schedule.map((day, i) => (
+                  <span key={i}>
+                    {i > 0 && " → "}
+                    {day}
+                  </span>
+                ))}
+                {" 반복"}
+              </>
+            )}
+          </span>
         </div>
       </div>
 
@@ -236,7 +279,11 @@ export function GroupConfigForm({
               min={1}
               max={100}
               value={maxRoundsInput}
-              onChange={(e) => setMaxRoundsInput(e.target.value)}
+              onChange={(e) => {
+                setMaxRoundsInput(e.target.value);
+                const v = Number(e.target.value);
+                if (!isNaN(v) && v >= 1) setMaxRounds(Math.min(100, v));
+              }}
               onBlur={() => {
                 const v = Number(maxRoundsInput);
                 const clamped = Math.min(100, Math.max(1, isNaN(v) ? 1 : v));
