@@ -64,16 +64,19 @@
 - 오케스트레이터: `GroupDetail` (`src/components/group-detail.tsx`)
 - **헤더**: 뒤로가기(대시보드) + 그라데이션 카드 (참여인원/진행일)
 - **등록 폼**: `rounded-2xl border bg-card p-6` 카드 섹션
-  - 소속 팀: `flex flex-wrap gap-2`, pill 버튼 (13개 프리셋 + 직접 입력)
+  - 법인 단위: 소속 팀 선택 (`flex flex-wrap gap-2`, pill 버튼 14개 프리셋 + 직접 입력) + 이름 입력
+  - 팀 단위: 이름 입력만 (소속 팀 섹션 숨김)
   - 직접 입력: 점선 border + 연필 아이콘 → 클릭 시 인라인 input + 확인/취소
   - 이름: Input `text-base h-10 max-w-sm`
   - CTA 버튼: `h-12 max-w-sm`, UserPlus 아이콘, shadow
   - max-width 800px, 가운데 정렬
 - **참여자 목록**: `rounded-2xl border bg-card p-6` 카드 섹션
-  - 팀별 균등 grid (`grid-cols-2 md:3 lg:4 xl:5`)
-  - 팀 헤더: border-b 구분선 + bold
-  - 아이템: 팀명 뱃지(bg-primary/10) + 이름, hover 시 X 삭제 버튼 (bg-rose-400)
-- **확인/삭제 모달**: `{팀}/{이름}` 볼드 + 개행 + 질문 텍스트
+  - 법인 단위: 팀별 균등 grid, 팀 헤더(border-b + bold), 아이템에 팀명 뱃지
+  - 팀 단위: 플랫 그리드 (팀 그룹핑/뱃지 없음)
+  - 아이템: hover 시 X 삭제 버튼 (bg-rose-400)
+- **확인/삭제 모달**:
+  - 법인 단위: `{팀}/{이름}` 볼드
+  - 팀 단위: `{이름}` 볼드
 
 ### 그룹 상세 - 매칭완료 (`/groups/[id]`)
 
@@ -136,6 +139,9 @@
 
 #### 그룹 추가/수정 폼 (`src/components/group-config-form.tsx`)
 - Dialog 기반 (DialogContent)
+- **그룹 타입**: 법인 단위 / 팀 단위 선택 (생성 시만, 수정 시 disabled)
+  - 법인 단위: 참여자가 소속 팀과 이름을 입력
+  - 팀 단위: 참여자가 이름만 입력 (같은 팀 내 랜덤 매칭)
 - **그룹 이름**: Input `text-base`
 - **요일 로테이션 (schedule)**:
   - 주차별 요일 선택 UI: `1주차`, `2주차`, ... 라벨 + 요일 pill 버튼 (월~금)

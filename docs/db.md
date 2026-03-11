@@ -33,6 +33,7 @@
 |------|------|------|------|
 | id | serial | PK | 그룹 설정 고유 ID |
 | title | varchar(100) | NOT NULL | 그룹 이름 |
+| group_type | varchar(10) | NOT NULL, default 'company' | 그룹 타입: `company` (법인 단위) \| `team` (팀 단위) |
 | schedule | jsonb | NOT NULL | 요일 로테이션 배열 (ex: `["수","목"]`) |
 | max_participants | integer | NOT NULL, default 4 | 최대 참여 인원 (최소 3, 최대 12) |
 | match_deadline_time | varchar(5) | NOT NULL, default '11:00' | 매칭 마감 시각 (HH:MM) |
@@ -91,6 +92,7 @@
 interface GroupConfig {
   id: string;
   title: string;
+  groupType: GroupType;   // "company" (법인 단위) | "team" (팀 단위)
   schedule: DayOfWeek[];  // 요일 로테이션 ["수","목"] = 수→목 반복
   maxParticipants: number;
   matchDeadlineTime: string; // "11:00"
@@ -106,6 +108,7 @@ interface GroupConfig {
 interface Group {
   id: string;
   title: string;
+  groupType: GroupType;   // "company" | "team"
   lunchDate: string;
   lunchDateDisplay: string;
   participantCount: number;

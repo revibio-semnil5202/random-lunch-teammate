@@ -93,6 +93,17 @@
 - [x] 에러 핸들링 고도화 (Sonner toast 알림)
 - [x] 인증 설정 가이드 (`docs/auth-setup.md`)
 
+## Phase 3.5 - 그룹 타입 분리
+
+- [x] GroupConfig에 groupType 컬럼 추가 (company | team, default company)
+- [x] 어드민 그룹 추가/수정 폼에 타입 선택 UI (생성 시만, 수정 시 disabled)
+- [x] 팀 단위 참여자 폼: 소속 팀 선택 숨김, 이름만 입력
+- [x] 팀 단위 참여자 목록: 팀 그룹핑 없이 플랫 리스트
+- [x] 팀 단위 매칭 결과: 팀 뱃지 숨김
+- [x] 확인/삭제 다이얼로그: 팀 단위면 이름만 표시
+- [x] 어드민 그룹 카드에 "팀 단위" 뱃지 표시
+- [x] 문서 업데이트 (db.md, ui-spec.md)
+
 ## Phase 4 - 남은 작업
 
 - [x] GitHub Actions cron (월요일 10시 weekly, 마감 1시간 전 reminder)
