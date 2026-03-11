@@ -9,7 +9,7 @@ import {
   matchResults,
 } from "@/db/schema";
 import { eq, and, gte, lt, lte, desc } from "drizzle-orm";
-import type { Group, Participant, MatchGroup } from "@/types";
+import type { Group, GroupType, Participant, MatchGroup } from "@/types";
 
 const KOREAN_DAYS = ["일", "월", "화", "수", "목", "금", "토"] as const;
 
@@ -117,6 +117,7 @@ async function buildGroup(
   },
   config: {
     title: string;
+    groupType: string;
     slackChannelUrl: string | null;
   }
 ): Promise<Group> {
@@ -127,6 +128,7 @@ async function buildGroup(
   return {
     id: event.id.toString(),
     title: config.title,
+    groupType: (config.groupType as GroupType) ?? "company",
     lunchDate: event.lunchDate,
     lunchDateDisplay: formatLunchDateDisplay(event.lunchDate),
     matchDeadlineDisplay: formatDeadlineDisplay(event.matchDeadline),
@@ -157,6 +159,7 @@ export async function getGroups(): Promise<{
         status: lunchEvents.status,
         createdAt: lunchEvents.createdAt,
         title: groupConfigs.title,
+        groupType: groupConfigs.groupType,
         slackChannelUrl: groupConfigs.slackChannelUrl,
       })
       .from(lunchEvents)
@@ -176,6 +179,7 @@ export async function getGroups(): Promise<{
         status: lunchEvents.status,
         createdAt: lunchEvents.createdAt,
         title: groupConfigs.title,
+        groupType: groupConfigs.groupType,
         slackChannelUrl: groupConfigs.slackChannelUrl,
       })
       .from(lunchEvents)
@@ -193,12 +197,12 @@ export async function getGroups(): Promise<{
   const [active, past] = await Promise.all([
     Promise.all(
       activeRows.map((row) =>
-        buildGroup(row, { title: row.title, slackChannelUrl: row.slackChannelUrl })
+        buildGroup(row, { title: row.title, groupType: row.groupType, slackChannelUrl: row.slackChannelUrl })
       )
     ),
     Promise.all(
       pastRows.map((row) =>
-        buildGroup(row, { title: row.title, slackChannelUrl: row.slackChannelUrl })
+        buildGroup(row, { title: row.title, groupType: row.groupType, slackChannelUrl: row.slackChannelUrl })
       )
     ),
   ]);
@@ -216,6 +220,7 @@ export async function getGroupDetail(eventId: string): Promise<Group | null> {
       status: lunchEvents.status,
       createdAt: lunchEvents.createdAt,
       title: groupConfigs.title,
+      groupType: groupConfigs.groupType,
       slackChannelUrl: groupConfigs.slackChannelUrl,
     })
     .from(lunchEvents)
@@ -226,5 +231,5 @@ export async function getGroupDetail(eventId: string): Promise<Group | null> {
   if (rows.length === 0) return null;
 
   const row = rows[0];
-  return buildGroup(row, { title: row.title, slackChannelUrl: row.slackChannelUrl });
+  return buildGroup(row, { title: row.title, groupType: row.groupType, slackChannelUrl: row.slackChannelUrl });
 }

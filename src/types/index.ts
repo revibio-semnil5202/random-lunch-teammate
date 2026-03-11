@@ -10,12 +10,15 @@ export interface MatchGroup {
   members: Participant[];
 }
 
+export type GroupType = "company" | "team";
+
 export const DAYS_OF_WEEK = ["월", "화", "수", "목", "금"] as const;
 export type DayOfWeek = (typeof DAYS_OF_WEEK)[number];
 
 export interface GroupConfig {
   id: string;
   title: string;
+  groupType: GroupType;
   schedule: DayOfWeek[]; // 주차별 요일 로테이션. ["수"] = 매주 수, ["수","목"] = 수→목→수→목 반복
   maxParticipants: number;
   matchDeadlineTime: string;
@@ -27,6 +30,7 @@ export interface GroupConfig {
 export interface Group {
   id: string;
   title: string;
+  groupType: GroupType;
   lunchDate: string;
   lunchDateDisplay: string;
   matchDeadlineDisplay: string;

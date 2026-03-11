@@ -4,6 +4,7 @@ export const mockGroups: Group[] = [
   {
     id: "g1",
     title: "리비바이오&알렌의서재",
+    groupType: "company",
     lunchDate: "2026-03-11",
     lunchDateDisplay: "03.11.수",
     matchDeadlineDisplay: "03.11.수 11:00",
@@ -45,6 +46,7 @@ export const mockGroups: Group[] = [
   {
     id: "g2",
     title: "링커리어",
+    groupType: "company",
     lunchDate: "2026-03-12",
     lunchDateDisplay: "03.12.목",
     matchDeadlineDisplay: "03.12.목 11:00",
@@ -63,6 +65,7 @@ export const mockGroups: Group[] = [
   {
     id: "g3",
     title: "리비바이오&알렌의서재",
+    groupType: "company",
     lunchDate: "2026-03-13",
     lunchDateDisplay: "03.13.금",
     matchDeadlineDisplay: "03.13.금 11:00",
@@ -79,6 +82,7 @@ export const mockPastGroups: Group[] = [
   {
     id: "past-1",
     title: "리비바이오&알렌의서재",
+    groupType: "company",
     lunchDate: "2026-03-04",
     lunchDateDisplay: "03.04.수",
     matchDeadlineDisplay: "03.04.수 11:00",
@@ -120,6 +124,7 @@ export const mockPastGroups: Group[] = [
   {
     id: "past-2",
     title: "링커리어",
+    groupType: "company",
     lunchDate: "2026-03-05",
     lunchDateDisplay: "03.05.목",
     matchDeadlineDisplay: "03.05.목 11:00",

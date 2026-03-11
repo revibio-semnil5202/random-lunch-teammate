@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { groupConfigs, lunchEvents } from "@/db/schema";
 import { eq, and, gte, lt } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
-import type { GroupConfig, DayOfWeek } from "@/types";
+import type { GroupConfig, GroupType, DayOfWeek } from "@/types";
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -19,6 +19,7 @@ async function requireAdmin() {
 function toGroupConfig(row: {
   id: number;
   title: string;
+  groupType: string;
   schedule: string[];
   maxParticipants: number;
   matchDeadlineTime: string;
@@ -29,6 +30,7 @@ function toGroupConfig(row: {
   return {
     id: row.id.toString(),
     title: row.title,
+    groupType: row.groupType as GroupType,
     schedule: row.schedule as DayOfWeek[],
     maxParticipants: row.maxParticipants,
     matchDeadlineTime: row.matchDeadlineTime,
@@ -56,6 +58,7 @@ export async function createGroupConfig(
     .insert(groupConfigs)
     .values({
       title: data.title,
+      groupType: data.groupType,
       schedule: data.schedule,
       maxParticipants: data.maxParticipants,
       matchDeadlineTime: data.matchDeadlineTime,

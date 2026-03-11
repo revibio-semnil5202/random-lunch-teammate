@@ -4,6 +4,7 @@ export const mockGroupConfigs: GroupConfig[] = [
   {
     id: "gc1",
     title: "리비바이오&알렌의서재",
+    groupType: "company",
     schedule: ["수"],
     maxParticipants: 12,
     matchDeadlineTime: "11:00",
@@ -13,6 +14,7 @@ export const mockGroupConfigs: GroupConfig[] = [
   {
     id: "gc2",
     title: "링커리어",
+    groupType: "company",
     schedule: ["수", "목"],
     maxParticipants: 8,
     matchDeadlineTime: "11:00",

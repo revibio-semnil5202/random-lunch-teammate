@@ -18,6 +18,7 @@ export const members = pgTable("members", {
 export const groupConfigs = pgTable("group_configs", {
   id: serial("id").primaryKey(),
   title: varchar("title", { length: 100 }).notNull(),
+  groupType: varchar("group_type", { length: 10 }).notNull().default("company"),
   schedule: jsonb("schedule").notNull().$type<string[]>(),
   maxParticipants: integer("max_participants").notNull(),
   matchDeadlineTime: varchar("match_deadline_time", { length: 5 }).notNull(),

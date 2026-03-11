@@ -4,16 +4,18 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { members, lunchEvents, eventParticipants } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
-import type { Participant } from "@/types";
+import type { Participant, GroupType } from "@/types";
 
 export async function registerParticipant({
   eventId,
   team,
   name,
+  groupType = "company",
 }: {
   eventId: string;
   team: string;
   name: string;
+  groupType?: GroupType;
 }): Promise<{ success: true; participant: Participant } | { success: false; error: string }> {
   const trimmedName = name.trim();
   const trimmedTeam = team.trim();
@@ -22,7 +24,7 @@ export async function registerParticipant({
     return { success: false, error: "이름을 입력해 주세요." };
   }
 
-  if (!trimmedTeam) {
+  if (groupType === "company" && !trimmedTeam) {
     return { success: false, error: "소속을 입력해 주세요." };
   }
 
@@ -66,7 +68,7 @@ export async function registerParticipant({
     (p) => p.department === trimmedTeam && p.name === trimmedName
   );
   if (duplicate) {
-    return { success: false, error: "이미 동일한 팀/이름으로 참여 신청이 되어 있습니다." };
+    return { success: false, error: groupType === "team" ? "이미 동일한 이름으로 참여 신청이 되어 있습니다." : "이미 동일한 팀/이름으로 참여 신청이 되어 있습니다." };
   }
 
   // members 테이블에 INSERT
