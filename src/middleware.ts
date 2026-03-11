@@ -11,6 +11,11 @@ export async function middleware(request: NextRequest) {
     if (!user && pathname !== "/login") {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
+      // 세션 쿠키가 있었는데 user가 null이면 토큰 만료
+      const hadSession = request.cookies.getAll().some((c) => c.name.startsWith("sb-"));
+      if (hadSession) {
+        url.searchParams.set("error", "expired");
+      }
       return NextResponse.redirect(url);
     }
 
@@ -39,6 +44,7 @@ export async function middleware(request: NextRequest) {
     if (pathname !== "/login") {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
+      url.searchParams.set("error", "server_error");
       return NextResponse.redirect(url);
     }
     return NextResponse.next();

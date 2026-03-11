@@ -25,6 +25,12 @@ export function LoginForm() {
         toast.error("관리자 계정이 아닙니다.");
         router.replace("/login");
       });
+    } else if (error === "expired") {
+      toast.error("토큰이 만료되었습니다. 다시 로그인해 주세요.");
+      router.replace("/login");
+    } else if (error === "server_error") {
+      toast.error("현재 사용자가 많습니다. 잠시 후 다시 시도해 주세요.");
+      router.replace("/login");
     }
   }, [searchParams, router]);
 
