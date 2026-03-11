@@ -1,13 +1,7 @@
 name: Slack Notify
 
 on:
-  schedule:
-    # 매주 월요일 KST 10:00 = UTC 01:00 → 주간 참여 안내 + 이벤트 자동 생성
-    - cron: "0 1 * * 1"
-    # 평일 10분마다 KST 08:00~12:30 = UTC 23:00~03:30 → 마감 리마인더 체크
-    - cron: "*/10 23 * * 0-4"
-    - cron: "*/10 0-3 * * 1-5"
-  workflow_dispatch:
+  workflow_dispatch: # 수동 실행용 (스케줄은 cron-job.org로 이관)
     inputs:
       type:
         description: "알림 유형 (weekly | reminder)"
