@@ -57,6 +57,7 @@
 | lunch_date | date | NOT NULL | 팀점 진행일 |
 | match_deadline | timestamp | NOT NULL | 매칭 마감 시각 |
 | status | varchar(20) | NOT NULL, default 'recruiting' | "recruiting" \| "matched" |
+| reminder_sent_at | timestamp | nullable | 마감 리마인더 발송 시각 (중복 발송 방지) |
 | created_at | timestamp | NOT NULL, default NOW | 생성일 |
 
 ### members 테이블 변경

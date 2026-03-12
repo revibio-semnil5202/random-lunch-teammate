@@ -57,7 +57,7 @@ export async function sendDeadlineReminder(
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `<!here> ⏰ *[${groupTitle}] 금일 팀점 매칭까지 1시간 남았어요!*\n\n*${deadlineTime}*에 매칭이 마감됩니다. 현재 *${participantCount}명* 참여 중입니다.\n\n혹시 개인 사정이 생기셨다면 지금 참여자 명단에서 이름을 빼주세요.\n\n👉 <${link}|확인하기>`,
+        text: `<!here> ⏰ *[${groupTitle}] 금일 팀점 매칭까지 1시간 남았어요!*\n\n*${deadlineTime}*에 매칭이 마감됩니다. 현재 *${participantCount}명* 참여 중입니다.\n\n혹시 개인 사정이 생기셨다면 참여자 명단에서 이름을 빼주세요.\n\n👉 <${link}|확인하기>`,
       },
     },
     {
