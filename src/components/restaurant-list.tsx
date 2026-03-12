@@ -221,16 +221,50 @@ export function RestaurantList({ restaurants }: RestaurantListProps) {
   );
 }
 
+const CATEGORY_COLOR_POOL = [
+  { badge: 'bg-sky-100 text-sky-700', bar: 'bg-sky-400' },
+  { badge: 'bg-rose-100 text-rose-700', bar: 'bg-rose-400' },
+  { badge: 'bg-amber-100 text-amber-700', bar: 'bg-amber-400' },
+  { badge: 'bg-orange-100 text-orange-700', bar: 'bg-orange-400' },
+  { badge: 'bg-teal-100 text-teal-700', bar: 'bg-teal-400' },
+  { badge: 'bg-violet-100 text-violet-700', bar: 'bg-violet-400' },
+  { badge: 'bg-emerald-100 text-emerald-700', bar: 'bg-emerald-400' },
+  { badge: 'bg-pink-100 text-pink-700', bar: 'bg-pink-400' },
+  { badge: 'bg-indigo-100 text-indigo-700', bar: 'bg-indigo-400' },
+  { badge: 'bg-lime-100 text-lime-700', bar: 'bg-lime-400' },
+  { badge: 'bg-cyan-100 text-cyan-700', bar: 'bg-cyan-400' },
+  { badge: 'bg-fuchsia-100 text-fuchsia-700', bar: 'bg-fuchsia-400' },
+  { badge: 'bg-red-100 text-red-700', bar: 'bg-red-400' },
+  { badge: 'bg-blue-100 text-blue-700', bar: 'bg-blue-400' },
+  { badge: 'bg-yellow-100 text-yellow-700', bar: 'bg-yellow-400' },
+  { badge: 'bg-purple-100 text-purple-700', bar: 'bg-purple-400' },
+  { badge: 'bg-stone-100 text-stone-700', bar: 'bg-stone-400' },
+  { badge: 'bg-zinc-100 text-zinc-700', bar: 'bg-zinc-400' },
+  { badge: 'bg-slate-100 text-slate-700', bar: 'bg-slate-400' },
+  { badge: 'bg-gray-100 text-gray-600', bar: 'bg-gray-400' },
+];
+
 const CATEGORY_COLORS: Record<string, { badge: string; bar: string }> = {
-  한식: { badge: 'bg-sky-100 text-sky-700', bar: 'bg-sky-400' },
-  중식: { badge: 'bg-rose-100 text-rose-700', bar: 'bg-rose-400' },
-  일식: { badge: 'bg-amber-100 text-amber-700', bar: 'bg-amber-400' },
-  양식: { badge: 'bg-orange-100 text-orange-700', bar: 'bg-orange-400' },
-  기타: { badge: 'bg-gray-100 text-gray-600', bar: 'bg-gray-400' },
+  한식: CATEGORY_COLOR_POOL[0],
+  중식: CATEGORY_COLOR_POOL[1],
+  일식: CATEGORY_COLOR_POOL[2],
+  양식: CATEGORY_COLOR_POOL[3],
+  기타: CATEGORY_COLOR_POOL[19],
 };
 
+let nextPoolIndex = Object.keys(CATEGORY_COLORS).length;
+
+function getCategoryColor(category: string) {
+  if (!category) return CATEGORY_COLOR_POOL[19];
+  if (CATEGORY_COLORS[category]) return CATEGORY_COLORS[category];
+  const color = CATEGORY_COLOR_POOL[nextPoolIndex % CATEGORY_COLOR_POOL.length];
+  CATEGORY_COLORS[category] = color;
+  nextPoolIndex++;
+  return color;
+}
+
 function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
-  const colors = CATEGORY_COLORS[restaurant.category] ?? { badge: 'bg-primary/10 text-primary', bar: 'bg-primary' };
+  const colors = getCategoryColor(restaurant.category);
 
   return (
     <div className="group relative overflow-hidden rounded-2xl border p-5 bg-gradient-to-br from-muted/50 via-background to-muted/30">
