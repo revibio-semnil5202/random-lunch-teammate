@@ -107,7 +107,7 @@
 ## Phase 4 - 남은 작업
 
 - [x] GitHub Actions cron (월요일 10시 weekly, 마감 1시간 전 reminder)
-- [ ] cron-job.org 전환 검토 (GitHub Actions cron 지연이 심할 경우)
+- [x] cron-job.org 전환 검토 (GitHub Actions cron 지연이 심할 경우)
   - **배경**: GitHub Actions cron은 공식적으로 지연/드롭 가능. 30분 간격 설정해도 실제 40~60분 걸릴 수 있음
   - **대안**: cron-job.org (무료, 1분 단위, 15년+ 운영, 타임아웃 30초, SLA 없지만 장애 보고 거의 없음)
   - **전환 방법**:
