@@ -36,6 +36,7 @@ export const lunchEvents = pgTable("lunch_events", {
   lunchDate: date("lunch_date").notNull(),
   matchDeadline: timestamp("match_deadline").notNull(),
   status: varchar("status", { length: 20 }).notNull().default("recruiting"),
+  reminderSentAt: timestamp("reminder_sent_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { groupConfigs, lunchEvents, eventParticipants } from "@/db/schema";
-import { eq, and, gte, lte, isNotNull } from "drizzle-orm";
+import { eq, and, gte, lte, isNull } from "drizzle-orm";
 import { sendWeeklyNotice, sendDeadlineReminder } from "@/lib/slack";
 import { ensureThisWeekEvent } from "@/actions/admin";
 import type { DayOfWeek } from "@/types";
@@ -101,13 +101,12 @@ async function handleWeekly() {
   return NextResponse.json({ message: `weekly 알림: 성공 ${sent}건`, sent, results });
 }
 
-/** 마감 리마인더: 마감 30분~1시간 30분 전인 이벤트에 발송 */
+/** 마감 리마인더: 마감 0~60분 전인 이벤트에 1회만 발송 */
 async function handleReminder() {
   const now = new Date();
-  const min30 = new Date(now.getTime() + 30 * 60 * 1000);
-  const min90 = new Date(now.getTime() + 90 * 60 * 1000);
+  const min60 = new Date(now.getTime() + 60 * 60 * 1000);
 
-  // 마감이 30분~1시간30분 후인 모집 중 이벤트 조회
+  // 마감이 0~60분 후인 모집 중 이벤트 중, 아직 리마인더를 보내지 않은 이벤트만 조회
   const upcomingEvents = await db
     .select({
       eventId: lunchEvents.id,
@@ -118,8 +117,9 @@ async function handleReminder() {
     .where(
       and(
         eq(lunchEvents.status, "recruiting"),
-        gte(lunchEvents.matchDeadline, min30),
-        lte(lunchEvents.matchDeadline, min90)
+        gte(lunchEvents.matchDeadline, now),
+        lte(lunchEvents.matchDeadline, min60),
+        isNull(lunchEvents.reminderSentAt)
       )
     );
 
@@ -152,6 +152,12 @@ async function handleReminder() {
         participants.length,
         event.eventId.toString()
       );
+
+      await db
+        .update(lunchEvents)
+        .set({ reminderSentAt: now })
+        .where(eq(lunchEvents.id, event.eventId));
+
       results.push({ groupTitle: config.title, success: true });
     } catch (e) {
       results.push({ groupTitle: config.title, success: false, error: String(e) });
