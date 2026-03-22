@@ -16,7 +16,10 @@ export async function registerParticipant({
   team: string;
   name: string;
   groupType?: GroupType;
-}): Promise<{ success: true; participant: Participant } | { success: false; error: string }> {
+}): Promise<
+  | { success: true; participant: Participant }
+  | { success: false; error: string }
+> {
   const trimmedName = name.trim();
   const trimmedTeam = team.trim();
 
@@ -29,7 +32,10 @@ export async function registerParticipant({
   }
 
   if (trimmedName.length > 10) {
-    return { success: false, error: "이름은 최대 10자까지 입력할 수 있습니다." };
+    return {
+      success: false,
+      error: "이름은 최대 10자까지 입력할 수 있습니다.",
+    };
   }
 
   const eventIdNum = parseInt(eventId, 10);
@@ -50,7 +56,10 @@ export async function registerParticipant({
   const event = eventRows[0];
 
   if (event.status !== "recruiting") {
-    return { success: false, error: "현재 참여 신청을 받지 않는 이벤트입니다." };
+    return {
+      success: false,
+      error: "현재 참여 신청을 받지 않는 이벤트입니다.",
+    };
   }
 
   // 현재 참여자 목록 조회 (중복 확인)
@@ -65,10 +74,16 @@ export async function registerParticipant({
     .where(eq(eventParticipants.eventId, eventIdNum));
 
   const duplicate = currentParticipants.some(
-    (p) => p.department === trimmedTeam && p.name === trimmedName
+    (p) => p.department === trimmedTeam && p.name === trimmedName,
   );
   if (duplicate) {
-    return { success: false, error: groupType === "team" ? "이미 동일한 이름으로 참여 신청이 되어 있습니다." : "이미 동일한 팀/이름으로 참여 신청이 되어 있습니다." };
+    return {
+      success: false,
+      error:
+        groupType === "team"
+          ? "이미 동일한 이름으로 참여 신청이 되어 있습니다."
+          : "이미 동일한 팀/이름으로 참여 신청이 되어 있습니다.",
+    };
   }
 
   // members 테이블에 INSERT
@@ -100,24 +115,30 @@ export async function registerParticipant({
 export async function deleteParticipant({
   eventId,
   participantId,
+  cancelReason,
 }: {
   eventId: string;
   participantId: string;
+  cancelReason: string;
 }): Promise<{ success: boolean; error?: string }> {
   const eventIdNum = parseInt(eventId, 10);
   const memberIdNum = parseInt(participantId, 10);
 
-  const deleted = await db
-    .delete(eventParticipants)
+  const updated = await db
+    .update(eventParticipants)
+    .set({
+      cancelledAt: new Date(),
+      cancelReason: cancelReason.trim() || "개인사정",
+    })
     .where(
       and(
         eq(eventParticipants.eventId, eventIdNum),
-        eq(eventParticipants.memberId, memberIdNum)
-      )
+        eq(eventParticipants.memberId, memberIdNum),
+      ),
     )
     .returning();
 
-  if (deleted.length === 0) {
+  if (updated.length === 0) {
     return { success: false, error: "참여자를 찾을 수 없습니다." };
   }
 

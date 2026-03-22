@@ -9,7 +9,7 @@ import {
   members,
   matchResults,
 } from "@/db/schema";
-import { eq, desc, notInArray, sql } from "drizzle-orm";
+import { eq, desc, notInArray, sql, and, isNull } from "drizzle-orm";
 import { createMatch } from "@/lib/match";
 import { sendMatchResult } from "@/lib/slack";
 
@@ -40,7 +40,7 @@ export async function createRandomMatch(eventId: string): Promise<{
 
   const event = eventRows[0];
 
-  // 참여자 목록 조회
+  // 참여자 목록 조회 (cancelled 제외)
   const participantRows = await db
     .select({
       id: members.id,
@@ -50,7 +50,12 @@ export async function createRandomMatch(eventId: string): Promise<{
     })
     .from(eventParticipants)
     .innerJoin(members, eq(eventParticipants.memberId, members.id))
-    .where(eq(eventParticipants.eventId, eventIdNum));
+    .where(
+      and(
+        eq(eventParticipants.eventId, eventIdNum),
+        isNull(eventParticipants.cancelledAt),
+      ),
+    );
 
   const result = createMatch(participantRows, {
     maxGroupSize: event.maxParticipants,
@@ -74,7 +79,7 @@ export async function createRandomMatch(eventId: string): Promise<{
         eventId: eventIdNum,
         matchGroupIndex: groupIndex,
         memberId: member.id,
-      }))
+      })),
     );
 
     savedGroups.push({
@@ -102,7 +107,7 @@ export async function createRandomMatch(eventId: string): Promise<{
         event.groupTitle,
         groupCount,
         totalMembers,
-        eventId
+        eventId,
       );
     } catch (e) {
       console.error("슬랙 매칭 결과 알림 실패:", e);
@@ -146,7 +151,9 @@ async function cleanupOldEvents() {
     // 관련 데이터 삭제 (matchResults → eventParticipants → lunchEvents)
     for (const id of deleteIds) {
       await db.delete(matchResults).where(eq(matchResults.eventId, id));
-      await db.delete(eventParticipants).where(eq(eventParticipants.eventId, id));
+      await db
+        .delete(eventParticipants)
+        .where(eq(eventParticipants.eventId, id));
       await db.delete(lunchEvents).where(eq(lunchEvents.id, id));
     }
 
@@ -157,9 +164,7 @@ async function cleanupOldEvents() {
 
     await db
       .delete(members)
-      .where(
-        notInArray(members.id, sql`(${referencedMemberIds})`)
-      );
+      .where(notInArray(members.id, sql`(${referencedMemberIds})`));
   } catch (e) {
     console.error("과거 기록 정리 실패:", e);
   }

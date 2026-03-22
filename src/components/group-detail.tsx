@@ -32,13 +32,13 @@ export function GroupDetail({ group }: GroupDetailProps) {
     useState<Participant | null>(null);
 
   const isDuplicate = group.participants.some(
-    (p) => p.team === selectedTeam && p.name === nameInput.trim()
+    (p) => p.team === selectedTeam && p.name === nameInput.trim(),
   );
 
   const isTeamType = group.groupType === "team";
 
   const handleRegisterClick = () => {
-    if (!isTeamType && !selectedTeam || !nameInput.trim()) return;
+    if ((!isTeamType && !selectedTeam) || !nameInput.trim()) return;
     setRegisterError(null);
     setIsRegisterModalOpen(true);
   };
@@ -73,7 +73,7 @@ export function GroupDetail({ group }: GroupDetailProps) {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = async (cancelReason: string) => {
     if (!targetDeleteParticipant) return;
     setIsDeleteLoading(true);
     setDeleteError(null);
@@ -81,6 +81,7 @@ export function GroupDetail({ group }: GroupDetailProps) {
     const result = await deleteParticipant({
       eventId: group.id,
       participantId: targetDeleteParticipant.id,
+      cancelReason,
     });
 
     setIsDeleteLoading(false);
@@ -151,7 +152,9 @@ export function GroupDetail({ group }: GroupDetailProps) {
           nameInput={nameInput}
           onNameChange={setNameInput}
           onSubmit={handleRegisterClick}
-          isDisabled={(!isTeamType && !selectedTeam) || !nameInput.trim() || isDuplicate}
+          isDisabled={
+            (!isTeamType && !selectedTeam) || !nameInput.trim() || isDuplicate
+          }
           isDuplicate={isDuplicate}
         />
       </div>

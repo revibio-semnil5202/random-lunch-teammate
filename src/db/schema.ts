@@ -48,6 +48,8 @@ export const eventParticipants = pgTable("event_participants", {
   memberId: integer("member_id")
     .references(() => members.id)
     .notNull(),
+  cancelledAt: timestamp("cancelled_at"),
+  cancelReason: varchar("cancel_reason", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

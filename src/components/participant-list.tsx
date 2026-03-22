@@ -23,7 +23,7 @@ export function ParticipantList({
       acc[p.team].push(p);
       return acc;
     },
-    {}
+    {},
   );
 
   const teams = Object.keys(grouped).sort();
@@ -33,7 +33,11 @@ export function ParticipantList({
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
         <Users className="h-10 w-10 mb-3 opacity-30" />
         <p className="text-sm">아직 참여자가 없습니다.</p>
-        <p className="text-xs mt-1">{isTeamType ? "위에서 이름을 입력하여 등록해주세요." : "위에서 소속 팀과 이름을 입력하여 등록해주세요."}</p>
+        <p className="text-xs mt-1">
+          {isTeamType
+            ? "위에서 이름을 입력하여 등록해주세요."
+            : "위에서 소속 팀과 이름을 입력하여 등록해주세요."}
+        </p>
       </div>
     );
   }
@@ -43,7 +47,7 @@ export function ParticipantList({
       <div className="flex items-center gap-2">
         <h2 className="text-lg font-semibold">참여자 목록</h2>
         <Badge className="bg-primary/10 text-primary border-0 font-semibold">
-          {participants.length}명
+          {participants.filter((p) => !p.cancelledAt).length}명
         </Badge>
       </div>
 

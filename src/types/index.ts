@@ -3,6 +3,8 @@ export interface Participant {
   team: string;
   name: string;
   createdAt: string;
+  cancelledAt?: string;
+  cancelReason?: string;
 }
 
 export interface MatchGroup {

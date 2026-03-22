@@ -40,8 +40,12 @@ function getWeekBounds(): { monday: Date; nextMonday: Date } {
   const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
 
   const mondayDate = now.getUTCDate() + diffToMonday;
-  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), mondayDate));
-  const nextMonday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), mondayDate + 7));
+  const monday = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), mondayDate),
+  );
+  const nextMonday = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), mondayDate + 7),
+  );
 
   return { monday, nextMonday };
 }
@@ -60,6 +64,8 @@ async function fetchParticipants(eventId: number): Promise<Participant[]> {
       name: members.name,
       department: members.department,
       createdAt: eventParticipants.createdAt,
+      cancelledAt: eventParticipants.cancelledAt,
+      cancelReason: eventParticipants.cancelReason,
     })
     .from(eventParticipants)
     .innerJoin(members, eq(eventParticipants.memberId, members.id))
@@ -70,6 +76,8 @@ async function fetchParticipants(eventId: number): Promise<Participant[]> {
     team: r.department ?? "",
     name: r.name,
     createdAt: r.createdAt.toISOString(),
+    cancelledAt: r.cancelledAt?.toISOString(),
+    cancelReason: r.cancelReason ?? undefined,
   }));
 }
 
@@ -119,7 +127,7 @@ async function buildGroup(
     title: string;
     groupType: string;
     slackChannelUrl: string | null;
-  }
+  },
 ): Promise<Group> {
   const participants = await fetchParticipants(event.id);
   const isMatched = event.status === "matched";
@@ -132,7 +140,7 @@ async function buildGroup(
     lunchDate: event.lunchDate,
     lunchDateDisplay: formatLunchDateDisplay(event.lunchDate),
     matchDeadlineDisplay: formatDeadlineDisplay(event.matchDeadline),
-    participantCount: participants.length,
+    participantCount: participants.filter((p) => !p.cancelledAt).length,
     participants,
     status: isMatched ? "matched" : "recruiting",
     matchDeadline: event.matchDeadline.toISOString(),
@@ -167,8 +175,8 @@ export async function getGroups(): Promise<{
       .where(
         and(
           gte(lunchEvents.lunchDate, mondayStr),
-          lt(lunchEvents.lunchDate, nextMondayStr)
-        )
+          lt(lunchEvents.lunchDate, nextMondayStr),
+        ),
       ),
     db
       .select({
@@ -187,8 +195,8 @@ export async function getGroups(): Promise<{
       .where(
         and(
           lt(lunchEvents.lunchDate, mondayStr),
-          eq(lunchEvents.status, "matched")
-        )
+          eq(lunchEvents.status, "matched"),
+        ),
       )
       .orderBy(desc(lunchEvents.lunchDate))
       .limit(20),
@@ -197,13 +205,21 @@ export async function getGroups(): Promise<{
   const [active, past] = await Promise.all([
     Promise.all(
       activeRows.map((row) =>
-        buildGroup(row, { title: row.title, groupType: row.groupType, slackChannelUrl: row.slackChannelUrl })
-      )
+        buildGroup(row, {
+          title: row.title,
+          groupType: row.groupType,
+          slackChannelUrl: row.slackChannelUrl,
+        }),
+      ),
     ),
     Promise.all(
       pastRows.map((row) =>
-        buildGroup(row, { title: row.title, groupType: row.groupType, slackChannelUrl: row.slackChannelUrl })
-      )
+        buildGroup(row, {
+          title: row.title,
+          groupType: row.groupType,
+          slackChannelUrl: row.slackChannelUrl,
+        }),
+      ),
     ),
   ]);
 
@@ -231,5 +247,9 @@ export async function getGroupDetail(eventId: string): Promise<Group | null> {
   if (rows.length === 0) return null;
 
   const row = rows[0];
-  return buildGroup(row, { title: row.title, groupType: row.groupType, slackChannelUrl: row.slackChannelUrl });
+  return buildGroup(row, {
+    title: row.title,
+    groupType: row.groupType,
+    slackChannelUrl: row.slackChannelUrl,
+  });
 }

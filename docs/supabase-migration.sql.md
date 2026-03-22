@@ -85,10 +85,14 @@ CREATE TABLE event_participants (
     REFERENCES lunch_events(id) ON DELETE CASCADE,
   member_id INTEGER NOT NULL
     REFERENCES members(id) ON DELETE CASCADE,
+  cancelled_at TIMESTAMP,
+  cancel_reason VARCHAR(100),
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 COMMENT ON TABLE event_participants IS '이벤트 참여자';
+COMMENT ON COLUMN event_participants.cancelled_at IS '미참 처리 시각 (NULL이면 참여 중)';
+COMMENT ON COLUMN event_participants.cancel_reason IS '미참 사유 (개인사정, 휴가, 직접 입력)';
 
 -- 동일 이벤트에 같은 멤버 중복 참여 방지
 CREATE UNIQUE INDEX idx_event_participants_unique
@@ -129,10 +133,10 @@ CREATE POLICY "anon_select_lunch_events" ON lunch_events FOR SELECT TO anon USIN
 CREATE POLICY "anon_select_event_participants" ON event_participants FOR SELECT TO anon USING (true);
 CREATE POLICY "anon_select_match_results" ON match_results FOR SELECT TO anon USING (true);
 
--- 일반 사용자 (anon): 참여자 등록/삭제
+-- 일반 사용자 (anon): 참여자 등록/미참 처리
 CREATE POLICY "anon_insert_members" ON members FOR INSERT TO anon WITH CHECK (true);
 CREATE POLICY "anon_insert_event_participants" ON event_participants FOR INSERT TO anon WITH CHECK (true);
-CREATE POLICY "anon_delete_event_participants" ON event_participants FOR DELETE TO anon USING (true);
+CREATE POLICY "anon_update_event_participants" ON event_participants FOR UPDATE TO anon USING (true) WITH CHECK (true);
 
 -- 어드민 (authenticated): 모든 테이블 전체 권한
 CREATE POLICY "auth_all_group_configs" ON group_configs FOR ALL TO authenticated USING (true) WITH CHECK (true);
