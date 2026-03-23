@@ -32,7 +32,8 @@ export function GroupDetail({ group }: GroupDetailProps) {
     useState<Participant | null>(null);
 
   const isDuplicate = group.participants.some(
-    (p) => p.team === selectedTeam && p.name === nameInput.trim(),
+    (p) =>
+      !p.cancelledAt && p.team === selectedTeam && p.name === nameInput.trim(),
   );
 
   const isTeamType = group.groupType === "team";
@@ -124,7 +125,7 @@ export function GroupDetail({ group }: GroupDetailProps) {
                 <Users className="h-3.5 w-3.5 text-primary" />
               </div>
               <span className="text-sm font-semibold">
-                {group.participants.length}명 참여
+                {group.participantCount}명 참여
               </span>
             </div>
             <div className="h-4 w-px bg-border" />

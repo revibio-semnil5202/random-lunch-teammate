@@ -62,19 +62,21 @@ export async function registerParticipant({
     };
   }
 
-  // 현재 참여자 목록 조회 (중복 확인)
+  // 현재 활성 참여자 목록 조회 (중복 확인, cancelled 제외)
   const currentParticipants = await db
     .select({
       memberId: eventParticipants.memberId,
       name: members.name,
       department: members.department,
+      cancelledAt: eventParticipants.cancelledAt,
     })
     .from(eventParticipants)
     .innerJoin(members, eq(eventParticipants.memberId, members.id))
     .where(eq(eventParticipants.eventId, eventIdNum));
 
   const duplicate = currentParticipants.some(
-    (p) => p.department === trimmedTeam && p.name === trimmedName,
+    (p) =>
+      !p.cancelledAt && p.department === trimmedTeam && p.name === trimmedName,
   );
   if (duplicate) {
     return {

@@ -121,7 +121,7 @@ export function GroupCard({ group }: GroupCardProps) {
               cancelled ? "text-muted-foreground" : "text-foreground",
             )}
           >
-            {group.participants.length}명
+            {group.participantCount}명
           </span>
         </div>
 

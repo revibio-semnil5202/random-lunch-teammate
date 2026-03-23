@@ -71,7 +71,7 @@ export function ParticipantList({
                   {team}
                 </span>
                 <Badge variant="outline" className="text-xs h-5 px-1.5">
-                  {grouped[team].length}
+                  {grouped[team].filter((p) => !p.cancelledAt).length}
                 </Badge>
               </div>
               <div className="flex flex-col gap-1.5">

@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Calendar, Users, Trophy, Shuffle, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  Users,
+  Trophy,
+  Shuffle,
+  ExternalLink,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Group } from "@/types";
 
@@ -50,7 +57,7 @@ export function MatchResult({ group }: MatchResultProps) {
                   <Users className="h-3.5 w-3.5 text-emerald-600" />
                 </div>
                 <span className="text-sm font-semibold">
-                  {group.participants.length}명 참여
+                  {group.participantCount}명 참여
                 </span>
               </div>
               <div className="h-4 w-px bg-border" />
