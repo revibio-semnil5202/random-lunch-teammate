@@ -9,7 +9,13 @@ import {
   matchResults,
 } from "@/db/schema";
 import { eq, and, gte, lt, lte, desc } from "drizzle-orm";
-import type { Group, GroupType, Participant, MatchGroup } from "@/types";
+import type {
+  Group,
+  GroupType,
+  RegistrationType,
+  Participant,
+  MatchGroup,
+} from "@/types";
 
 const KOREAN_DAYS = ["일", "월", "화", "수", "목", "금", "토"] as const;
 
@@ -63,6 +69,7 @@ async function fetchParticipants(eventId: number): Promise<Participant[]> {
       memberId: members.id,
       name: members.name,
       department: members.department,
+      isPreset: eventParticipants.isPreset,
       createdAt: eventParticipants.createdAt,
       cancelledAt: eventParticipants.cancelledAt,
       cancelReason: eventParticipants.cancelReason,
@@ -76,6 +83,7 @@ async function fetchParticipants(eventId: number): Promise<Participant[]> {
     team: r.department ?? "",
     name: r.name,
     createdAt: r.createdAt.toISOString(),
+    isPreset: r.isPreset ?? false,
     cancelledAt: r.cancelledAt?.toISOString(),
     cancelReason: r.cancelReason ?? undefined,
   }));
@@ -126,6 +134,7 @@ async function buildGroup(
   config: {
     title: string;
     groupType: string;
+    registrationType: string;
     slackChannelUrl: string | null;
   },
 ): Promise<Group> {
@@ -137,6 +146,7 @@ async function buildGroup(
     id: event.id.toString(),
     title: config.title,
     groupType: (config.groupType as GroupType) ?? "company",
+    registrationType: (config.registrationType as RegistrationType) ?? "self",
     lunchDate: event.lunchDate,
     lunchDateDisplay: formatLunchDateDisplay(event.lunchDate),
     matchDeadlineDisplay: formatDeadlineDisplay(event.matchDeadline),
@@ -168,6 +178,7 @@ export async function getGroups(): Promise<{
         createdAt: lunchEvents.createdAt,
         title: groupConfigs.title,
         groupType: groupConfigs.groupType,
+        registrationType: groupConfigs.registrationType,
         slackChannelUrl: groupConfigs.slackChannelUrl,
       })
       .from(lunchEvents)
@@ -188,6 +199,7 @@ export async function getGroups(): Promise<{
         createdAt: lunchEvents.createdAt,
         title: groupConfigs.title,
         groupType: groupConfigs.groupType,
+        registrationType: groupConfigs.registrationType,
         slackChannelUrl: groupConfigs.slackChannelUrl,
       })
       .from(lunchEvents)
@@ -208,6 +220,7 @@ export async function getGroups(): Promise<{
         buildGroup(row, {
           title: row.title,
           groupType: row.groupType,
+          registrationType: row.registrationType,
           slackChannelUrl: row.slackChannelUrl,
         }),
       ),
@@ -217,6 +230,7 @@ export async function getGroups(): Promise<{
         buildGroup(row, {
           title: row.title,
           groupType: row.groupType,
+          registrationType: row.registrationType,
           slackChannelUrl: row.slackChannelUrl,
         }),
       ),
@@ -237,6 +251,7 @@ export async function getGroupDetail(eventId: string): Promise<Group | null> {
       createdAt: lunchEvents.createdAt,
       title: groupConfigs.title,
       groupType: groupConfigs.groupType,
+      registrationType: groupConfigs.registrationType,
       slackChannelUrl: groupConfigs.slackChannelUrl,
     })
     .from(lunchEvents)
@@ -250,6 +265,7 @@ export async function getGroupDetail(eventId: string): Promise<Group | null> {
   return buildGroup(row, {
     title: row.title,
     groupType: row.groupType,
+    registrationType: row.registrationType,
     slackChannelUrl: row.slackChannelUrl,
   });
 }

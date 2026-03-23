@@ -2,42 +2,66 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { groupConfigs, lunchEvents } from "@/db/schema";
+import {
+  groupConfigs,
+  lunchEvents,
+  presetMembers,
+  members,
+  eventParticipants,
+} from "@/db/schema";
 import { eq, and, gte, lt, count } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
-import type { GroupConfig, GroupType, DayOfWeek } from "@/types";
+import type {
+  GroupConfig,
+  GroupType,
+  DayOfWeek,
+  RegistrationType,
+  PresetMember,
+} from "@/types";
 
 async function requireAdmin() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user || user.app_metadata?.role !== "admin") {
     throw new Error("관리자 권한이 필요합니다.");
   }
   return user;
 }
 
-function toGroupConfig(row: {
-  id: number;
-  title: string;
-  groupType: string;
-  schedule: string[];
-  maxParticipants: number;
-  matchDeadlineTime: string;
-  slackChannelUrl: string | null;
-  slackWebhookUrl: string | null;
-  maxRounds: number | null;
-  createdAt: Date;
-}): GroupConfig {
+function toGroupConfig(
+  row: {
+    id: number;
+    title: string;
+    groupType: string;
+    registrationType: string;
+    schedule: string[];
+    maxParticipants: number;
+    matchDeadlineTime: string;
+    slackChannelUrl: string | null;
+    slackWebhookUrl: string | null;
+    maxRounds: number | null;
+    createdAt: Date;
+  },
+  presetMemberRows?: { id: number; name: string; department: string | null }[],
+): GroupConfig {
   return {
     id: row.id.toString(),
     title: row.title,
     groupType: row.groupType as GroupType,
+    registrationType: row.registrationType as RegistrationType,
     schedule: row.schedule as DayOfWeek[],
     maxParticipants: row.maxParticipants,
     matchDeadlineTime: row.matchDeadlineTime,
     slackChannelUrl: row.slackChannelUrl ?? undefined,
     slackWebhookUrl: row.slackWebhookUrl ?? undefined,
     maxRounds: row.maxRounds ?? undefined,
+    presetMembers: presetMemberRows?.map((pm) => ({
+      id: pm.id.toString(),
+      name: pm.name,
+      department: pm.department ?? undefined,
+    })),
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -48,11 +72,31 @@ export async function getGroupConfigs(): Promise<GroupConfig[]> {
     .from(groupConfigs)
     .orderBy(groupConfigs.createdAt);
 
-  return rows.map(toGroupConfig);
+  // preset members를 그룹별로 조회
+  const allPresets = await db
+    .select({
+      id: presetMembers.id,
+      groupConfigId: presetMembers.groupConfigId,
+      name: presetMembers.name,
+      department: presetMembers.department,
+    })
+    .from(presetMembers);
+
+  const presetsByGroup = new Map<
+    number,
+    { id: number; name: string; department: string | null }[]
+  >();
+  for (const pm of allPresets) {
+    const list = presetsByGroup.get(pm.groupConfigId) ?? [];
+    list.push(pm);
+    presetsByGroup.set(pm.groupConfigId, list);
+  }
+
+  return rows.map((row) => toGroupConfig(row, presetsByGroup.get(row.id)));
 }
 
 export async function createGroupConfig(
-  data: Omit<GroupConfig, "id" | "createdAt">
+  data: Omit<GroupConfig, "id" | "createdAt">,
 ): Promise<GroupConfig> {
   await requireAdmin();
 
@@ -61,6 +105,7 @@ export async function createGroupConfig(
     .values({
       title: data.title,
       groupType: data.groupType,
+      registrationType: data.registrationType ?? "self",
       schedule: data.schedule,
       maxParticipants: data.maxParticipants,
       matchDeadlineTime: data.matchDeadlineTime,
@@ -70,7 +115,23 @@ export async function createGroupConfig(
     })
     .returning();
 
-  await ensureThisWeekEvent(row.id, row.schedule as DayOfWeek[], row.matchDeadlineTime, row.maxRounds);
+  // preset members 저장
+  if (data.presetMembers && data.presetMembers.length > 0) {
+    await db.insert(presetMembers).values(
+      data.presetMembers.map((pm) => ({
+        groupConfigId: row.id,
+        name: pm.name,
+        department: pm.department ?? null,
+      })),
+    );
+  }
+
+  await ensureThisWeekEvent(
+    row.id,
+    row.schedule as DayOfWeek[],
+    row.matchDeadlineTime,
+    row.maxRounds,
+  );
 
   revalidatePath("/admin/groups");
   revalidatePath("/");
@@ -80,9 +141,11 @@ export async function createGroupConfig(
 
 export async function updateGroupConfig(
   id: string,
-  data: Omit<GroupConfig, "id" | "createdAt">
+  data: Omit<GroupConfig, "id" | "createdAt">,
 ): Promise<GroupConfig> {
   await requireAdmin();
+
+  const numId = parseInt(id, 10);
 
   const [row] = await db
     .update(groupConfigs)
@@ -95,10 +158,27 @@ export async function updateGroupConfig(
       slackWebhookUrl: data.slackWebhookUrl ?? null,
       maxRounds: data.maxRounds ?? null,
     })
-    .where(eq(groupConfigs.id, parseInt(id, 10)))
+    .where(eq(groupConfigs.id, numId))
     .returning();
 
-  await ensureThisWeekEvent(row.id, row.schedule as DayOfWeek[], row.matchDeadlineTime, row.maxRounds);
+  // preset members 갱신 (delete all → re-insert)
+  await db.delete(presetMembers).where(eq(presetMembers.groupConfigId, numId));
+  if (data.presetMembers && data.presetMembers.length > 0) {
+    await db.insert(presetMembers).values(
+      data.presetMembers.map((pm) => ({
+        groupConfigId: numId,
+        name: pm.name,
+        department: pm.department ?? null,
+      })),
+    );
+  }
+
+  await ensureThisWeekEvent(
+    row.id,
+    row.schedule as DayOfWeek[],
+    row.matchDeadlineTime,
+    row.maxRounds,
+  );
 
   revalidatePath("/admin/groups");
   revalidatePath("/");
@@ -107,7 +187,7 @@ export async function updateGroupConfig(
 }
 
 export async function deleteGroupConfig(
-  id: string
+  id: string,
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -127,7 +207,11 @@ export async function deleteGroupConfig(
 }
 
 const KOREAN_DAY_MAP: Record<DayOfWeek, number> = {
-  "월": 1, "화": 2, "수": 3, "목": 4, "금": 5,
+  월: 1,
+  화: 2,
+  수: 3,
+  목: 4,
+  금: 5,
 };
 
 /** KST 기준 현재 시각을 Date로 반환 (UTC 메서드로 KST 값을 읽을 수 있음) */
@@ -136,7 +220,13 @@ function nowKST(): Date {
 }
 
 /** KST 기준 날짜+시각으로 UTC Date 생성 (DB 저장용) */
-function kstToUTC(year: number, month: number, day: number, hours: number, minutes: number): Date {
+function kstToUTC(
+  year: number,
+  month: number,
+  day: number,
+  hours: number,
+  minutes: number,
+): Date {
   return new Date(Date.UTC(year, month - 1, day, hours - 9, minutes, 0, 0));
 }
 
@@ -150,7 +240,7 @@ export async function ensureThisWeekEvent(
   groupConfigId: number,
   schedule: DayOfWeek[],
   matchDeadlineTime: string,
-  maxRounds?: number | null
+  maxRounds?: number | null,
 ) {
   // maxRounds 체크: 매칭 완료 횟수가 제한에 도달하면 새 이벤트 미생성
   if (maxRounds != null) {
@@ -160,8 +250,8 @@ export async function ensureThisWeekEvent(
       .where(
         and(
           eq(lunchEvents.groupConfigId, groupConfigId),
-          eq(lunchEvents.status, "matched")
-        )
+          eq(lunchEvents.status, "matched"),
+        ),
       );
     if (matchedCount[0].count >= maxRounds) return;
   }
@@ -203,8 +293,8 @@ export async function ensureThisWeekEvent(
       and(
         eq(lunchEvents.groupConfigId, groupConfigId),
         gte(lunchEvents.lunchDate, mondayStr),
-        lt(lunchEvents.lunchDate, nextMondayStr)
-      )
+        lt(lunchEvents.lunchDate, nextMondayStr),
+      ),
     );
 
   // 이번 주 모집 중인 이벤트가 있으면 날짜/시간 갱신
@@ -221,12 +311,52 @@ export async function ensureThisWeekEvent(
   }
 
   // 매칭 완료/취소된 이벤트만 있으면 새 이벤트 생성
-  await db.insert(lunchEvents).values({
-    groupConfigId,
-    lunchDate: lunchDateStr,
-    matchDeadline: deadline,
-    status: "recruiting",
-  });
+  const [newEvent] = await db
+    .insert(lunchEvents)
+    .values({
+      groupConfigId,
+      lunchDate: lunchDateStr,
+      matchDeadline: deadline,
+      status: "recruiting",
+    })
+    .returning();
+
+  // preset 그룹이면 사전등록 멤버를 자동 등록
+  await autoRegisterPresetMembers(groupConfigId, newEvent.id);
+}
+
+async function autoRegisterPresetMembers(
+  groupConfigId: number,
+  eventId: number,
+) {
+  const config = await db
+    .select({ registrationType: groupConfigs.registrationType })
+    .from(groupConfigs)
+    .where(eq(groupConfigs.id, groupConfigId))
+    .limit(1);
+
+  if (!config[0] || config[0].registrationType !== "preset") return;
+
+  const presets = await db
+    .select()
+    .from(presetMembers)
+    .where(eq(presetMembers.groupConfigId, groupConfigId));
+
+  for (const pm of presets) {
+    const [newMember] = await db
+      .insert(members)
+      .values({
+        name: pm.name,
+        department: pm.department,
+      })
+      .returning();
+
+    await db.insert(eventParticipants).values({
+      eventId,
+      memberId: newMember.id,
+      isPreset: true,
+    });
+  }
 }
 
 function toDateStr(d: Date): string {

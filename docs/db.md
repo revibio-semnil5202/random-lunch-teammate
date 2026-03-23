@@ -5,44 +5,49 @@
 파일: `src/db/schema.ts`
 
 ### members
-| 컬럼 | 타입 | 제약 | 설명 |
-|------|------|------|------|
-| id | serial | PK | 참여자 고유 ID |
-| name | varchar(50) | NOT NULL | 이름 |
-| department | varchar(50) | nullable | 소속 팀 |
-| created_at | timestamp | NOT NULL, default NOW | 생성일 |
+
+| 컬럼       | 타입        | 제약                  | 설명           |
+| ---------- | ----------- | --------------------- | -------------- |
+| id         | serial      | PK                    | 참여자 고유 ID |
+| name       | varchar(50) | NOT NULL              | 이름           |
+| department | varchar(50) | nullable              | 소속 팀        |
+| created_at | timestamp   | NOT NULL, default NOW | 생성일         |
 
 ### groups
-| 컬럼 | 타입 | 제약 | 설명 |
-|------|------|------|------|
-| id | serial | PK | 그룹 고유 ID |
-| matched_at | date | NOT NULL, default NOW | 매칭일 |
+
+| 컬럼       | 타입   | 제약                  | 설명         |
+| ---------- | ------ | --------------------- | ------------ |
+| id         | serial | PK                    | 그룹 고유 ID |
+| matched_at | date   | NOT NULL, default NOW | 매칭일       |
 
 ### group_members
-| 컬럼 | 타입 | 제약 | 설명 |
-|------|------|------|------|
-| id | serial | PK | 관계 고유 ID |
-| group_id | integer | NOT NULL, FK → groups.id | 소속 그룹 |
-| member_id | integer | NOT NULL, FK → members.id | 참여자 |
+
+| 컬럼      | 타입    | 제약                      | 설명         |
+| --------- | ------- | ------------------------- | ------------ |
+| id        | serial  | PK                        | 관계 고유 ID |
+| group_id  | integer | NOT NULL, FK → groups.id  | 소속 그룹    |
+| member_id | integer | NOT NULL, FK → members.id | 참여자       |
 
 ## 진화 계획 (Phase 2)
 
 ### group_configs 테이블 (신규) — 어드민 그룹 템플릿
 
-| 컬럼 | 타입 | 제약 | 설명 |
-|------|------|------|------|
-| id | serial | PK | 그룹 설정 고유 ID |
-| title | varchar(100) | NOT NULL | 그룹 이름 |
-| group_type | varchar(10) | NOT NULL, default 'company' | 그룹 타입: `company` (팀 구분) \| `team` (팀 미구분) |
-| schedule | jsonb | NOT NULL | 요일 로테이션 배열 (ex: `["수","목"]`) |
-| max_participants | integer | NOT NULL, default 4 | 최대 참여 인원 (최소 3, 최대 12) |
-| match_deadline_time | varchar(5) | NOT NULL, default '11:00' | 매칭 마감 시각 (HH:MM) |
-| slack_channel_url | varchar(500) | nullable | 슬랙 채널 바로가기 URL |
-| slack_webhook_url | varchar(500) | nullable | 슬랙 Incoming Webhook URL (알림 발송용) |
-| max_rounds | integer | nullable | 최대 진행 횟수 (NULL = 무제한) |
-| created_at | timestamp | NOT NULL, default NOW | 생성일 |
+| 컬럼                | 타입         | 제약                        | 설명                                                 |
+| ------------------- | ------------ | --------------------------- | ---------------------------------------------------- |
+| id                  | serial       | PK                          | 그룹 설정 고유 ID                                    |
+| title               | varchar(100) | NOT NULL                    | 그룹 이름                                            |
+| group_type          | varchar(10)  | NOT NULL, default 'company' | 그룹 타입: `company` (팀 구분) \| `team` (팀 미구분) |
+| registration_type   | varchar(10)  | NOT NULL, default 'self'    | 등록 방식: `self` (직접등록) \| `preset` (사전등록)  |
+| schedule            | jsonb        | NOT NULL                    | 요일 로테이션 배열 (ex: `["수","목"]`)               |
+| max_participants    | integer      | NOT NULL, default 4         | 최대 참여 인원 (최소 3, 최대 12)                     |
+| match_deadline_time | varchar(5)   | NOT NULL, default '11:00'   | 매칭 마감 시각 (HH:MM)                               |
+| slack_channel_url   | varchar(500) | nullable                    | 슬랙 채널 바로가기 URL                               |
+| slack_webhook_url   | varchar(500) | nullable                    | 슬랙 Incoming Webhook URL (알림 발송용)              |
+| max_rounds          | integer      | nullable                    | 최대 진행 횟수 (NULL = 무제한)                       |
+| created_at          | timestamp    | NOT NULL, default NOW       | 생성일                                               |
 
 **요일 로테이션 (schedule)**:
+
 - `["수"]` → 매주 수요일
 - `["수", "목"]` → 1주차 수, 2주차 목, 3주차 수, 4주차 목... 반복
 - `["화", "목", "금"]` → 3주 사이클로 화→목→금 반복
@@ -50,41 +55,53 @@
 
 ### lunch_events 테이블 (신규) — 각 회차 이벤트 (기존 groups 역할 확장)
 
-| 컬럼 | 타입 | 제약 | 설명 |
-|------|------|------|------|
-| id | serial | PK | 이벤트 고유 ID |
-| group_config_id | integer | NOT NULL, FK → group_configs.id | 소속 그룹 설정 |
-| lunch_date | date | NOT NULL | 팀점 진행일 |
-| match_deadline | timestamp | NOT NULL | 매칭 마감 시각 |
-| status | varchar(20) | NOT NULL, default 'recruiting' | "recruiting" \| "matched" |
-| reminder_sent_at | timestamp | nullable | 마감 리마인더 발송 시각 (중복 발송 방지) |
-| created_at | timestamp | NOT NULL, default NOW | 생성일 |
+| 컬럼             | 타입        | 제약                            | 설명                                     |
+| ---------------- | ----------- | ------------------------------- | ---------------------------------------- |
+| id               | serial      | PK                              | 이벤트 고유 ID                           |
+| group_config_id  | integer     | NOT NULL, FK → group_configs.id | 소속 그룹 설정                           |
+| lunch_date       | date        | NOT NULL                        | 팀점 진행일                              |
+| match_deadline   | timestamp   | NOT NULL                        | 매칭 마감 시각                           |
+| status           | varchar(20) | NOT NULL, default 'recruiting'  | "recruiting" \| "matched"                |
+| reminder_sent_at | timestamp   | nullable                        | 마감 리마인더 발송 시각 (중복 발송 방지) |
+| created_at       | timestamp   | NOT NULL, default NOW           | 생성일                                   |
 
 ### members 테이블 변경
+
 - `department` NOT NULL로 변경 — 소속 팀 필수값 (프리셋 또는 직접 입력 문자열)
 - `name` length 50 → 10 축소
 
 ### group_members → event_participants (리네이밍)
 
-| 컬럼 | 타입 | 제약 | 설명 |
-|------|------|------|------|
-| id | serial | PK | 관계 고유 ID |
-| event_id | integer | NOT NULL, FK → lunch_events.id | 소속 이벤트 |
-| member_id | integer | NOT NULL, FK → members.id | 참여자 |
-| created_at | timestamp | NOT NULL, default NOW | 참여 등록일 |
+| 컬럼       | 타입      | 제약                           | 설명          |
+| ---------- | --------- | ------------------------------ | ------------- |
+| id         | serial    | PK                             | 관계 고유 ID  |
+| event_id   | integer   | NOT NULL, FK → lunch_events.id | 소속 이벤트   |
+| member_id  | integer   | NOT NULL, FK → members.id      | 참여자        |
+| is_preset  | boolean   | default false                  | 사전등록 여부 |
+| created_at | timestamp | NOT NULL, default NOW          | 참여 등록일   |
 
 - UNIQUE constraint (event_id, member_id) — 중복 참여 방지
 - FK에 ON DELETE CASCADE 추가
 
+### preset_members 테이블 (신규) — 사전등록 멤버 템플릿
+
+| 컬럼            | 타입        | 제약                                               | 설명                            |
+| --------------- | ----------- | -------------------------------------------------- | ------------------------------- |
+| id              | serial      | PK                                                 |                                 |
+| group_config_id | integer     | NOT NULL, FK → group_configs.id, ON DELETE CASCADE | 소속 그룹 설정                  |
+| name            | varchar(10) | NOT NULL                                           | 이름 (최대 10글자)              |
+| department      | varchar(50) | nullable                                           | 소속 팀 (팀 구분 모드에서 사용) |
+| created_at      | timestamp   | NOT NULL, default NOW                              |                                 |
+
 ### match_results 테이블 (신규)
 
-| 컬럼 | 타입 | 제약 | 설명 |
-|------|------|------|------|
-| id | serial | PK | |
-| event_id | integer | NOT NULL, FK → lunch_events.id | 소속 이벤트 |
-| match_group_index | integer | NOT NULL | 조 번호 (1, 2, 3...) |
-| member_id | integer | NOT NULL, FK → members.id | 참여자 |
-| created_at | timestamp | NOT NULL, default NOW | |
+| 컬럼              | 타입      | 제약                           | 설명                 |
+| ----------------- | --------- | ------------------------------ | -------------------- |
+| id                | serial    | PK                             |                      |
+| event_id          | integer   | NOT NULL, FK → lunch_events.id | 소속 이벤트          |
+| match_group_index | integer   | NOT NULL                       | 조 번호 (1, 2, 3...) |
+| member_id         | integer   | NOT NULL, FK → members.id      | 참여자               |
+| created_at        | timestamp | NOT NULL, default NOW          |                      |
 
 ## 데이터 구조 (TypeScript)
 
@@ -94,13 +111,15 @@
 interface GroupConfig {
   id: string;
   title: string;
-  groupType: GroupType;   // "company" (팀 구분) | "team" (팀 미구분)
-  schedule: DayOfWeek[];  // 요일 로테이션 ["수","목"] = 수→목 반복
+  groupType: GroupType; // "company" (팀 구분) | "team" (팀 미구분)
+  registrationType: RegistrationType; // "self" (직접등록) | "preset" (사전등록)
+  schedule: DayOfWeek[]; // 요일 로테이션 ["수","목"] = 수→목 반복
   maxParticipants: number;
   matchDeadlineTime: string; // "11:00"
   slackChannelUrl?: string;
   slackWebhookUrl?: string;
-  maxRounds?: number;    // undefined/null = 무제한
+  maxRounds?: number; // undefined/null = 무제한
+  presetMembers?: PresetMember[]; // 사전등록 멤버 (preset 모드에서 사용)
   createdAt: string;
 }
 ```
@@ -111,7 +130,8 @@ interface GroupConfig {
 interface Group {
   id: string;
   title: string;
-  groupType: GroupType;   // "company" | "team"
+  groupType: GroupType; // "company" | "team"
+  registrationType: RegistrationType; // "self" | "preset"
   lunchDate: string;
   lunchDateDisplay: string;
   participantCount: number;
@@ -128,8 +148,8 @@ interface Group {
 ```typescript
 interface Participant {
   id: string;
-  team: string;    // 소속 팀 (프리셋 or 직접 입력)
-  name: string;    // 이름 (최대 10글자)
+  team: string; // 소속 팀 (프리셋 or 직접 입력)
+  name: string; // 이름 (최대 10글자)
   createdAt: string;
 }
 ```
@@ -138,7 +158,7 @@ interface Participant {
 
 ```typescript
 interface MatchGroup {
-  groupIndex: number;    // 조 번호 (1, 2, 3...)
+  groupIndex: number; // 조 번호 (1, 2, 3...)
   members: Participant[];
 }
 ```
@@ -149,9 +169,20 @@ TypeScript 상수 배열 (`src/constants/teams.ts`) + 직접 입력 지원:
 
 ```typescript
 export const TEAMS = [
-  "기획", "마케팅", "광고", "출판", "디자인",
-  "백엔드", "프론트", "iOS", "Android", "플러터", "QA",
-  "인사", "총무", "데이터",
+  "기획",
+  "마케팅",
+  "광고",
+  "출판",
+  "디자인",
+  "백엔드",
+  "프론트",
+  "iOS",
+  "Android",
+  "플러터",
+  "QA",
+  "인사",
+  "총무",
+  "데이터",
 ] as const;
 ```
 
@@ -162,9 +193,11 @@ DB에는 string으로 저장 (프리셋/커스텀 구분 없음).
 ```
 group_configs (어드민 설정)
   │
+  ├── 1:N ── preset_members (사전등록 멤버 템플릿)
+  │
   ├── 1:N ── lunch_events (각 회차)
   │             │
-  │             ├── 1:N ── event_participants (참여자)
+  │             ├── 1:N ── event_participants (참여자, is_preset 구분)
   │             │             └── N:1 ── members
   │             │
   │             └── 1:N ── match_results (매칭 결과)

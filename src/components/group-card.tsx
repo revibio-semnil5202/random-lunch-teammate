@@ -1,5 +1,13 @@
 import Link from "next/link";
-import { Calendar, Users, ChevronRight, Trophy, Clock, Ban, AlarmClock } from "lucide-react";
+import {
+  Calendar,
+  Users,
+  ChevronRight,
+  Trophy,
+  Clock,
+  Ban,
+  AlarmClock,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Group } from "@/types";
 
@@ -19,8 +27,10 @@ export function GroupCard({ group }: GroupCardProps) {
         cancelled
           ? "bg-gradient-to-br from-rose-50 via-background to-rose-50/50 opacity-75"
           : "hover:shadow-lg hover:-translate-y-0.5",
-        matched && "bg-gradient-to-br from-emerald-50 via-background to-emerald-50/50",
-        status === "recruiting" && "bg-gradient-to-br from-primary/5 via-background to-primary/10"
+        matched &&
+          "bg-gradient-to-br from-emerald-50 via-background to-emerald-50/50",
+        status === "recruiting" &&
+          "bg-gradient-to-br from-primary/5 via-background to-primary/10",
       )}
     >
       {/* 좌측 컬러 바 */}
@@ -29,23 +39,32 @@ export function GroupCard({ group }: GroupCardProps) {
           "absolute left-0 top-0 h-full w-1 rounded-l-2xl",
           cancelled && "bg-rose-400",
           matched && "bg-emerald-500",
-          status === "recruiting" && "bg-primary"
+          status === "recruiting" && "bg-primary",
         )}
       />
 
       {/* 상단: 타이틀 + 상태 뱃지 */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>
-          <h3 className={cn(
-            "text-base font-bold leading-snug",
-            cancelled ? "text-muted-foreground line-through" : "text-foreground"
-          )}>
+          <h3
+            className={cn(
+              "text-base font-bold leading-snug",
+              cancelled
+                ? "text-muted-foreground line-through"
+                : "text-foreground",
+            )}
+          >
             {group.title}
           </h3>
           {cancelled && (
-            <p className="text-xs text-muted-foreground mt-1">참여 인원이 부족하여 매칭이 취소되었습니다.</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              참여 인원이 부족하여 매칭이 취소되었습니다.
+            </p>
           )}
-          {!cancelled && (
+          {!cancelled && group.registrationType === "preset" && (
+            <p className="text-xs text-muted-foreground mt-1">사전등록</p>
+          )}
+          {!cancelled && group.registrationType !== "preset" && (
             <div className="mt-1 text-xs">&nbsp;</div>
           )}
         </div>
@@ -78,20 +97,30 @@ export function GroupCard({ group }: GroupCardProps) {
           <div
             className={cn(
               "flex h-7 w-7 items-center justify-center rounded-full",
-              cancelled ? "bg-rose-100" : matched ? "bg-emerald-100" : "bg-primary/10"
+              cancelled
+                ? "bg-rose-100"
+                : matched
+                  ? "bg-emerald-100"
+                  : "bg-primary/10",
             )}
           >
             <Users
               className={cn(
                 "h-3.5 w-3.5",
-                cancelled ? "text-rose-500" : matched ? "text-emerald-600" : "text-primary"
+                cancelled
+                  ? "text-rose-500"
+                  : matched
+                    ? "text-emerald-600"
+                    : "text-primary",
               )}
             />
           </div>
-          <span className={cn(
-            "text-sm font-semibold",
-            cancelled ? "text-muted-foreground" : "text-foreground"
-          )}>
+          <span
+            className={cn(
+              "text-sm font-semibold",
+              cancelled ? "text-muted-foreground" : "text-foreground",
+            )}
+          >
             {group.participants.length}명
           </span>
         </div>
@@ -102,13 +131,21 @@ export function GroupCard({ group }: GroupCardProps) {
           <div
             className={cn(
               "flex h-7 w-7 items-center justify-center rounded-full",
-              cancelled ? "bg-rose-100" : matched ? "bg-emerald-100" : "bg-primary/10"
+              cancelled
+                ? "bg-rose-100"
+                : matched
+                  ? "bg-emerald-100"
+                  : "bg-primary/10",
             )}
           >
             <Calendar
               className={cn(
                 "h-3.5 w-3.5",
-                cancelled ? "text-rose-500" : matched ? "text-emerald-600" : "text-primary"
+                cancelled
+                  ? "text-rose-500"
+                  : matched
+                    ? "text-emerald-600"
+                    : "text-primary",
               )}
             />
           </div>
@@ -123,13 +160,21 @@ export function GroupCard({ group }: GroupCardProps) {
           <div
             className={cn(
               "flex h-7 w-7 items-center justify-center rounded-full",
-              cancelled ? "bg-rose-100" : matched ? "bg-emerald-100" : "bg-primary/10"
+              cancelled
+                ? "bg-rose-100"
+                : matched
+                  ? "bg-emerald-100"
+                  : "bg-primary/10",
             )}
           >
             <AlarmClock
               className={cn(
                 "h-3.5 w-3.5",
-                cancelled ? "text-rose-500" : matched ? "text-emerald-600" : "text-primary"
+                cancelled
+                  ? "text-rose-500"
+                  : matched
+                    ? "text-emerald-600"
+                    : "text-primary",
               )}
             />
           </div>

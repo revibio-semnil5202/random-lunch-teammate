@@ -2,7 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, Calendar, Clock, Users, Repeat } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Calendar,
+  Clock,
+  Users,
+  Repeat,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +28,13 @@ import {
 } from "@/actions/admin";
 import type { GroupConfig, DayOfWeek } from "@/types";
 
-const KOREAN_DAY_NUM: Record<string, number> = { "월": 1, "화": 2, "수": 3, "목": 4, "금": 5 };
+const KOREAN_DAY_NUM: Record<string, number> = {
+  월: 1,
+  화: 2,
+  수: 3,
+  목: 4,
+  금: 5,
+};
 
 function isEventNextWeek(schedule: DayOfWeek[]): boolean {
   const kstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
@@ -110,7 +124,12 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">그룹 관리</h1>
-        <Button onClick={() => { setActionError(null); setIsFormOpen(true); }}>
+        <Button
+          onClick={() => {
+            setActionError(null);
+            setIsFormOpen(true);
+          }}
+        >
           <Plus className="h-4 w-4 mr-1.5" />
           그룹 추가
         </Button>
@@ -127,10 +146,12 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
             variant="outline"
             size="sm"
             className="mt-4"
-            onClick={() => { setActionError(null); setIsFormOpen(true); }}
+            onClick={() => {
+              setActionError(null);
+              setIsFormOpen(true);
+            }}
           >
-            <Plus className="h-3.5 w-3.5 mr-1" />
-            첫 그룹 만들기
+            <Plus className="h-3.5 w-3.5 mr-1" />첫 그룹 만들기
           </Button>
         </div>
       ) : (
@@ -147,10 +168,19 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
                   <div className="flex items-center gap-2">
                     <h3 className="font-bold text-base">{config.title}</h3>
                     {config.groupType === "team" && (
-                      <Badge variant="outline" className="text-xs h-5 px-1.5">팀 미구분</Badge>
+                      <Badge variant="outline" className="text-xs h-5 px-1.5">
+                        팀 미구분
+                      </Badge>
+                    )}
+                    {config.registrationType === "preset" && (
+                      <Badge variant="outline" className="text-xs h-5 px-1.5">
+                        사전등록
+                      </Badge>
                     )}
                     {config.maxRounds != null && (
-                      <Badge variant="outline" className="text-xs h-5 px-1.5">{config.maxRounds}회</Badge>
+                      <Badge variant="outline" className="text-xs h-5 px-1.5">
+                        {config.maxRounds}회
+                      </Badge>
                     )}
                   </div>
 
@@ -173,14 +203,20 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     type="button"
-                    onClick={() => { setActionError(null); setEditTarget(config); }}
+                    onClick={() => {
+                      setActionError(null);
+                      setEditTarget(config);
+                    }}
                     className="cursor-pointer rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
                   <button
                     type="button"
-                    onClick={() => { setActionError(null); setDeleteTarget(config); }}
+                    onClick={() => {
+                      setActionError(null);
+                      setDeleteTarget(config);
+                    }}
                     className="cursor-pointer rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -193,7 +229,13 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
       )}
 
       {/* 추가 다이얼로그 */}
-      <Dialog open={isFormOpen} onOpenChange={(open) => { setIsFormOpen(open); if (!open) setActionError(null); }}>
+      <Dialog
+        open={isFormOpen}
+        onOpenChange={(open) => {
+          setIsFormOpen(open);
+          if (!open) setActionError(null);
+        }}
+      >
         <DialogContent keepMounted>
           <DialogHeader>
             <DialogTitle>그룹 추가</DialogTitle>
@@ -211,7 +253,15 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
       </Dialog>
 
       {/* 수정 다이얼로그 */}
-      <Dialog open={!!editTarget} onOpenChange={(open) => { if (!open) { setEditTarget(null); setActionError(null); } }}>
+      <Dialog
+        open={!!editTarget}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditTarget(null);
+            setActionError(null);
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>그룹 수정</DialogTitle>
@@ -230,14 +280,24 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
       </Dialog>
 
       {/* 삭제 확인 다이얼로그 */}
-      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) { setDeleteTarget(null); setActionError(null); } }}>
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteTarget(null);
+            setActionError(null);
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>그룹 삭제</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground flex flex-col gap-1 mt-2">
-              <span className="font-bold text-foreground">{deleteTarget?.title}</span>
+              <span className="font-bold text-foreground">
+                {deleteTarget?.title}
+              </span>
               <span>삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</span>
             </p>
             {actionError && !!deleteTarget && (
@@ -254,7 +314,10 @@ export function GroupManagement({ initialConfigs }: GroupManagementProps) {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => { setDeleteTarget(null); setActionError(null); }}
+                onClick={() => {
+                  setDeleteTarget(null);
+                  setActionError(null);
+                }}
                 disabled={isSubmitting}
                 className="flex-1"
               >

@@ -6,6 +6,7 @@ import {
   integer,
   date,
   jsonb,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const members = pgTable("members", {
@@ -19,6 +20,9 @@ export const groupConfigs = pgTable("group_configs", {
   id: serial("id").primaryKey(),
   title: varchar("title", { length: 100 }).notNull(),
   groupType: varchar("group_type", { length: 10 }).notNull().default("company"),
+  registrationType: varchar("registration_type", { length: 10 })
+    .notNull()
+    .default("self"),
   schedule: jsonb("schedule").notNull().$type<string[]>(),
   maxParticipants: integer("max_participants").notNull(),
   matchDeadlineTime: varchar("match_deadline_time", { length: 5 }).notNull(),
@@ -48,8 +52,19 @@ export const eventParticipants = pgTable("event_participants", {
   memberId: integer("member_id")
     .references(() => members.id)
     .notNull(),
+  isPreset: boolean("is_preset").default(false),
   cancelledAt: timestamp("cancelled_at"),
   cancelReason: varchar("cancel_reason", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const presetMembers = pgTable("preset_members", {
+  id: serial("id").primaryKey(),
+  groupConfigId: integer("group_config_id")
+    .references(() => groupConfigs.id, { onDelete: "cascade" })
+    .notNull(),
+  name: varchar("name", { length: 10 }).notNull(),
+  department: varchar("department", { length: 50 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -110,7 +110,14 @@ export function GroupDetail({ group }: GroupDetailProps) {
 
         <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/5 via-background to-primary/10 p-6">
           <div className="absolute left-0 top-0 h-full w-1 bg-primary rounded-l-2xl" />
-          <h1 className="text-2xl font-bold mb-3">{group.title}</h1>
+          <div className="flex items-center gap-2 mb-3">
+            <h1 className="text-2xl font-bold">{group.title}</h1>
+            {group.registrationType === "preset" && (
+              <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                사전등록
+              </span>
+            )}
+          </div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <div className="flex items-center gap-1.5">
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10">
@@ -144,7 +151,13 @@ export function GroupDetail({ group }: GroupDetailProps) {
 
       {/* 등록 폼 영역 */}
       <div className="rounded-2xl border bg-card p-6">
-        <h2 className="text-lg font-semibold mb-5">참여자 등록</h2>
+        <h2 className="text-lg font-semibold mb-1">참여자 등록</h2>
+        {group.registrationType === "preset" && (
+          <p className="text-xs text-muted-foreground mb-4">
+            사전등록된 참가자 외에 추가로 등록할 수 있습니다.
+          </p>
+        )}
+        {group.registrationType !== "preset" && <div className="mb-4" />}
         <ParticipantForm
           groupType={group.groupType}
           selectedTeam={selectedTeam}
