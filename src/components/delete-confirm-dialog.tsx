@@ -112,8 +112,8 @@ export function DeleteConfirmDialog({
         />
 
         {/* 미참 사유 선택 */}
-        <div className="space-y-2.5">
-          <label className="text-sm font-semibold">미참 사유</label>
+        <div>
+          <p className="text-sm font-semibold mb-3">미참 사유</p>
           <div className="flex flex-wrap gap-2">
             {CANCEL_REASONS.map((reason) => (
               <button
@@ -127,7 +127,7 @@ export function DeleteConfirmDialog({
                   "cursor-pointer rounded-lg border px-3 py-2 text-sm font-medium transition-all",
                   selectedReason === reason && !isCustomSelected
                     ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                    : "border-input bg-background hover:bg-accent hover:text-accent-foreground hover:border-primary/30",
+                    : "border-input bg-background hover:bg-accent hover:text-accent-foreground",
                 )}
               >
                 {reason}
@@ -172,7 +172,7 @@ export function DeleteConfirmDialog({
                   "cursor-pointer rounded-lg border border-dashed px-3 py-2 text-sm font-medium transition-all inline-flex items-center gap-1.5",
                   isCustomSelected
                     ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                    : "border-input text-muted-foreground hover:bg-accent hover:text-accent-foreground hover:border-primary/30",
+                    : "border-input text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                 )}
               >
                 <Pencil className="h-3.5 w-3.5" />
@@ -192,9 +192,10 @@ export function DeleteConfirmDialog({
             취소
           </Button>
           <Button
-            variant="destructive"
+            variant="outline"
             onClick={() => onConfirm(selectedReason)}
             disabled={isLoading || !isNameMatch}
+            className="border-rose-400 text-rose-400 hover:bg-rose-50 hover:text-rose-500"
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             삭제
