@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Pencil, Check } from "lucide-react";
+import { X, Pencil, Check, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -64,22 +64,33 @@ function TeamModeInput({
       <Label className="text-sm font-semibold">사전등록 참가자</Label>
       <div className="rounded-xl border bg-muted/30 p-3 space-y-3">
         <div>
-          <Input
-            value={input}
-            onChange={(e) => {
-              setInput(e.target.value);
-              setDuplicateError(false);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addName();
-              }
-            }}
-            placeholder="이름 입력 후 Enter"
-            maxLength={10}
-            className="h-9 text-sm bg-background"
-          />
+          <div className="relative">
+            <Input
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+                setDuplicateError(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addName();
+                }
+              }}
+              placeholder="이름 입력"
+              maxLength={10}
+              className="h-9 text-sm bg-background pr-16"
+            />
+            <button
+              type="button"
+              onClick={addName}
+              disabled={!input.trim()}
+              className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center gap-0.5 rounded px-2 py-1 text-xs font-medium bg-primary text-white hover:bg-primary/90 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              <Plus className="h-3 w-3" />
+              등록
+            </button>
+          </div>
           {duplicateError && (
             <p className="text-xs text-destructive mt-1">
               이미 등록된 이름입니다.
@@ -245,27 +256,38 @@ function CompanyModeInput({
 
         {/* 이름 입력 */}
         <div>
-          <Input
-            value={nameInput}
-            onChange={(e) => {
-              setNameInput(e.target.value);
-              setDuplicateError(false);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addMember();
+          <div className="relative">
+            <Input
+              value={nameInput}
+              onChange={(e) => {
+                setNameInput(e.target.value);
+                setDuplicateError(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addMember();
+                }
+              }}
+              placeholder={
+                selectedTeam
+                  ? `${selectedTeam} 팀 이름 입력`
+                  : "팀을 먼저 선택하세요"
               }
-            }}
-            placeholder={
-              selectedTeam
-                ? `${selectedTeam} 팀 이름 입력 후 Enter`
-                : "팀을 먼저 선택하세요"
-            }
-            disabled={!selectedTeam}
-            maxLength={10}
-            className="h-9 text-sm bg-background"
-          />
+              disabled={!selectedTeam}
+              maxLength={10}
+              className="h-9 text-sm bg-background pr-16"
+            />
+            <button
+              type="button"
+              onClick={addMember}
+              disabled={!selectedTeam || !nameInput.trim()}
+              className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center gap-0.5 rounded px-2 py-1 text-xs font-medium bg-primary text-white hover:bg-primary/90 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              <Plus className="h-3 w-3" />
+              등록
+            </button>
+          </div>
           {duplicateError && (
             <p className="text-xs text-destructive mt-1">
               이미 동일한 팀/이름으로 등록된 참가자가 있습니다.
