@@ -72,7 +72,7 @@ function TeamModeInput({
                 setDuplicateError(false);
               }}
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
+                if (e.key === "Enter" && !e.nativeEvent.isComposing) {
                   e.preventDefault();
                   addName();
                 }
@@ -205,7 +205,7 @@ function CompanyModeInput({
                 value={customTeam}
                 onChange={(e) => setCustomTeam(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === "Enter" && !e.nativeEvent.isComposing) {
                     e.preventDefault();
                     handleCustomConfirm();
                   }
@@ -264,7 +264,7 @@ function CompanyModeInput({
                 setDuplicateError(false);
               }}
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
+                if (e.key === "Enter" && !e.nativeEvent.isComposing) {
                   e.preventDefault();
                   addMember();
                 }
