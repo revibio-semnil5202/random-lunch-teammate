@@ -29,7 +29,7 @@ export async function sendWeeklyNotice(
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `<!here> 🍽️ *[${groupTitle}] 금주 팀점 참여자를 모집합니다!*\n\n금주는 *${lunchDay}* 에 팀점이 진행됩니다.\n참여를 원하시는 분께서는 아래 링크를 통해 참여해 주세요.\n\n👉 <${link}|참여하기>\n\n> <https://fanmaum.slack.com/docs/T2CUQML83/F0AKBR85Q3H|랜덤 점심 팀메이트 사용법>`,
+        text: `<!channel> 🍽️ *[${groupTitle}] 금주 팀점 참여자를 모집합니다!*\n\n금주는 *${lunchDay}* 에 팀점이 진행됩니다.\n참여를 원하시는 분께서는 아래 링크를 통해 참여해 주세요.\n\n👉 <${link}|참여하기>\n\n> <https://fanmaum.slack.com/docs/T2CUQML83/F0AKBR85Q3H|랜덤 점심 팀메이트 사용법>`,
       },
     },
     {
@@ -57,7 +57,7 @@ export async function sendDeadlineReminder(
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `<!here> ⏰ *[${groupTitle}] 금일 팀점 매칭까지 1시간 남았어요!*\n\n*${deadlineTime}*에 매칭이 마감됩니다. 현재 *${participantCount}명* 참여 중입니다.\n\n혹시 개인 사정이 생기셨다면 참여자 명단에서 이름을 빼주세요.\n\n👉 <${link}|확인하기>`,
+        text: `<!channel> ⏰ *[${groupTitle}] 금일 팀점 매칭까지 1시간 남았어요!*\n\n*${deadlineTime}*에 매칭이 마감됩니다. 현재 *${participantCount}명* 참여 중입니다.\n\n혹시 개인 사정이 생기셨다면 참여자 명단에서 이름을 빼주세요.\n\n👉 <${link}|수정하기>`,
       },
     },
     {
@@ -85,7 +85,7 @@ export async function sendMatchResult(
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `<!here> 🎉 *[${groupTitle}] 팀점 매칭 결과가 나왔습니다!*\n\n총 *${totalMembers}명*이 *${groupCount}개 조*로 매칭되었습니다.\n\n누구와 함께 식사하는지 확인해보세요.\n\n👉 <${link}|결과 보기>`,
+        text: `<!channel> 🎉 *[${groupTitle}] 팀점 매칭 결과가 나왔습니다!*\n\n총 *${totalMembers}명*이 *${groupCount}개 조*로 매칭되었습니다.\n\n누구와 함께 식사하는지 확인해보세요.\n\n👉 <${link}|결과 보기>`,
       },
     },
     {

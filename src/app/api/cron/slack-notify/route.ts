@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   if (type !== "weekly" && type !== "reminder") {
     return NextResponse.json(
       { error: "type 파라미터가 필요합니다. (weekly | reminder)" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -34,8 +34,13 @@ export async function POST(request: Request) {
     const allConfigs = await db.select().from(groupConfigs);
     await Promise.allSettled(
       allConfigs.map((c) =>
-        ensureThisWeekEvent(c.id, c.schedule as DayOfWeek[], c.matchDeadlineTime, c.maxRounds)
-      )
+        ensureThisWeekEvent(
+          c.id,
+          c.schedule as DayOfWeek[],
+          c.matchDeadlineTime,
+          c.maxRounds,
+        ),
+      ),
     );
   }
 
@@ -52,14 +57,20 @@ async function handleWeekly() {
   const allConfigs = await db.select().from(groupConfigs);
   await Promise.allSettled(
     allConfigs.map((c) =>
-      ensureThisWeekEvent(c.id, c.schedule as DayOfWeek[], c.matchDeadlineTime, c.maxRounds)
-    )
+      ensureThisWeekEvent(
+        c.id,
+        c.schedule as DayOfWeek[],
+        c.matchDeadlineTime,
+        c.maxRounds,
+      ),
+    ),
   );
 
   // webhook URL이 설정된 그룹만
   const activeConfigs = allConfigs.filter((c) => c.slackWebhookUrl);
 
-  const results: { groupTitle: string; success: boolean; error?: string }[] = [];
+  const results: { groupTitle: string; success: boolean; error?: string }[] =
+    [];
 
   for (const config of activeConfigs) {
     const events = await db
@@ -68,13 +79,17 @@ async function handleWeekly() {
       .where(
         and(
           eq(lunchEvents.groupConfigId, config.id),
-          eq(lunchEvents.status, "recruiting")
-        )
+          eq(lunchEvents.status, "recruiting"),
+        ),
       )
       .limit(1);
 
     if (events.length === 0) {
-      results.push({ groupTitle: config.title, success: false, error: "모집 중인 이벤트 없음" });
+      results.push({
+        groupTitle: config.title,
+        success: false,
+        error: "모집 중인 이벤트 없음",
+      });
       continue;
     }
 
@@ -89,16 +104,24 @@ async function handleWeekly() {
         config.slackWebhookUrl!,
         config.title,
         lunchDay,
-        event.id.toString()
+        event.id.toString(),
       );
       results.push({ groupTitle: config.title, success: true });
     } catch (e) {
-      results.push({ groupTitle: config.title, success: false, error: String(e) });
+      results.push({
+        groupTitle: config.title,
+        success: false,
+        error: String(e),
+      });
     }
   }
 
   const sent = results.filter((r) => r.success).length;
-  return NextResponse.json({ message: `weekly 알림: 성공 ${sent}건`, sent, results });
+  return NextResponse.json({
+    message: `weekly 알림: 성공 ${sent}건`,
+    sent,
+    results,
+  });
 }
 
 /** 마감 리마인더: 마감 0~60분 전인 이벤트에 1회만 발송 */
@@ -119,15 +142,16 @@ async function handleReminder() {
         eq(lunchEvents.status, "recruiting"),
         gte(lunchEvents.matchDeadline, now),
         lte(lunchEvents.matchDeadline, min60),
-        isNull(lunchEvents.reminderSentAt)
-      )
+        isNull(lunchEvents.reminderSentAt),
+      ),
     );
 
   if (upcomingEvents.length === 0) {
     return NextResponse.json({ message: "리마인더 대상 이벤트 없음", sent: 0 });
   }
 
-  const results: { groupTitle: string; success: boolean; error?: string }[] = [];
+  const results: { groupTitle: string; success: boolean; error?: string }[] =
+    [];
 
   for (const event of upcomingEvents) {
     const configs = await db
@@ -142,7 +166,12 @@ async function handleReminder() {
     const participants = await db
       .select({ id: eventParticipants.id })
       .from(eventParticipants)
-      .where(eq(eventParticipants.eventId, event.eventId));
+      .where(
+        and(
+          eq(eventParticipants.eventId, event.eventId),
+          isNull(eventParticipants.cancelledAt),
+        ),
+      );
 
     try {
       await sendDeadlineReminder(
@@ -150,7 +179,7 @@ async function handleReminder() {
         config.title,
         config.matchDeadlineTime,
         participants.length,
-        event.eventId.toString()
+        event.eventId.toString(),
       );
 
       await db
@@ -160,10 +189,18 @@ async function handleReminder() {
 
       results.push({ groupTitle: config.title, success: true });
     } catch (e) {
-      results.push({ groupTitle: config.title, success: false, error: String(e) });
+      results.push({
+        groupTitle: config.title,
+        success: false,
+        error: String(e),
+      });
     }
   }
 
   const sent = results.filter((r) => r.success).length;
-  return NextResponse.json({ message: `reminder 알림: 성공 ${sent}건`, sent, results });
+  return NextResponse.json({
+    message: `reminder 알림: 성공 ${sent}건`,
+    sent,
+    results,
+  });
 }
