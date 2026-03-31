@@ -9,7 +9,7 @@ import {
   members,
   eventParticipants,
 } from "@/db/schema";
-import { eq, and, gte, lt, count } from "drizzle-orm";
+import { eq, and, gte, lt, count, desc } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 import type {
   GroupConfig,
@@ -270,8 +270,31 @@ export async function ensureThisWeekEvent(
   const mondayStr = toDateStr(mondayD);
   const nextMondayStr = toDateStr(nextMondayD);
 
-  // 로테이션에서 이번 주 요일 결정
-  const rotationIndex = 0 % schedule.length;
+  // 로테이션에서 이번 주 요일 결정: 직전 매칭 이벤트의 요일 기반으로 다음 인덱스 계산
+  let rotationIndex = 0;
+  if (schedule.length > 1) {
+    const lastMatched = await db
+      .select({ lunchDate: lunchEvents.lunchDate })
+      .from(lunchEvents)
+      .where(
+        and(
+          eq(lunchEvents.groupConfigId, groupConfigId),
+          eq(lunchEvents.status, "matched"),
+        ),
+      )
+      .orderBy(desc(lunchEvents.lunchDate))
+      .limit(1);
+
+    if (lastMatched.length > 0) {
+      const lastDate = new Date(lastMatched[0].lunchDate);
+      const lastDayNum = lastDate.getUTCDay() === 0 ? 7 : lastDate.getUTCDay();
+      const lastDayName = Object.entries(KOREAN_DAY_MAP).find(
+        ([, num]) => num === lastDayNum,
+      )?.[0];
+      const lastIndex = schedule.indexOf(lastDayName as DayOfWeek);
+      rotationIndex = lastIndex >= 0 ? (lastIndex + 1) % schedule.length : 0;
+    }
+  }
   const targetDay = schedule[rotationIndex];
   const targetDayNum = KOREAN_DAY_MAP[targetDay];
 
